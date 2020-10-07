@@ -1,48 +1,54 @@
 package main
 
 import (
-
-	"server/common"
-	"server/routes"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
+	"io"
 	"net/http"
 	"os"
+	"te/common"
+	"te/middleware"
+	"te/router"
 )
+
 var r *gin.Engine
-func main() {
-	InitConfig()
-	InitApplication()
-	InitRoutes()
 
-}
-
-func InitConfig()  {
+func init() {
 	workDir, _ := os.Getwd()
-	viper.SetConfigName("application")
+	//viper 配置处理框架
+	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 	viper.AddConfigPath(workDir + "/config")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
-}
-func InitApplication(){
-	common.InitDB()
-	common.InitSmtp()
+	common.InitMysql()
 	common.InitRedis()
-	common.InitIot()
+	common.InitSmtp()
+	common.InitMongodb()
+	common.InitLog()
+
+	// 记录到文件。
+	f, _ := os.Create("gin.log")
+	gin.DefaultWriter = io.MultiWriter(f)
+	// 如果需要同时将日志写入文件和控制台，请使用以下代码。
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	r = gin.Default()
+	r.Use(middleware.CorsMiddleware())
+	r = router.UtilRouter(r)
+	r = router.UserRouter(r)
+	r = router.WebSocketRouter(r)
+	r.StaticFS("/public", http.Dir("public"))
 
 }
-func InitRoutes(){
-	r = gin.Default()
-	r=routes.UserRoutes(r)
-	r=routes.AdminRoutes(r)
-	r.StaticFS("/public",http.Dir("public"))
+
+func main() {
 	port := viper.GetString("server.port")
 	if port != "" {
 		panic(r.Run(":" + port))
 	}
-	panic(r.Run	())
+	panic(r.Run())
+	fmt.Println("wwwww")
 }

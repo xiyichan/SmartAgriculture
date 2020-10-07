@@ -5,15 +5,16 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 )
+
 var ctx = context.Background()
 var rdb *redis.Client
 
+func InitRedis() {
 
-func InitRedis(){
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     viper.GetString("redis.addr"), // use default Addr
-		Password: viper.GetString("redis.password"),               // no password set
-		DB:       viper.GetInt("redis.db"),
+		Addr:     viper.GetString("redis.addr"),     // use default Addr
+		Password: viper.GetString("redis.password"), // no password set
+		DB:       viper.GetInt("redis.db"),          //使用默认0数据库
 		//可以加配置信息
 		//DialTimeout:  10 * time.Second,
 		//ReadTimeout:  30 * time.Second,
@@ -22,10 +23,10 @@ func InitRedis(){
 		//PoolTimeout:  30 * time.Second,
 	})
 	_, err := rdb.Ping(ctx).Result()
-	if err!=nil{
-		panic("redis err:"+err.Error())
+	if err != nil {
+		panic("redis err:" + err.Error())
 	}
 }
-func GetRedis() (*redis.Client,context.Context){
-	return rdb,ctx
+func GetRedis() *redis.Client {
+	return rdb
 }

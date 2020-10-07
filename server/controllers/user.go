@@ -1,0 +1,330 @@
+package controllers
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/gogf/gf/util/gvalid"
+	"golang.org/x/crypto/bcrypt"
+	"os"
+	"path"
+	"te/common"
+	"te/models"
+	"time"
+)
+
+func UserRegisterByPhone(ctx *gin.Context) {
+
+}
+func UserRegisterByEmail(ctx *gin.Context) {
+	db := common.GetDB()
+	rdb := common.GetRedis()
+	var requestUser = models.User{}
+	ctx.Bind(&requestUser)
+	if requestUser.Email != "" {
+		if err := gvalid.Check(requestUser.Email, "email", nil); err != nil {
+			ctx.JSON(422, gin.H{"code": 422, "msg": "该邮箱格式不对"})
+			return
+		}
+	}
+
+	if err := gvalid.Check(requestUser.Password, "password", nil); err != nil {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "密码格式不对,6位以上"})
+		return
+	}
+
+	if len(requestUser.Name) == 0 {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "昵称为空"})
+		return
+	} else if len(requestUser.Name) > 20 {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "昵称过长"})
+		return
+	}
+
+	var user models.User
+	db.Where("email = ?", requestUser.Email).Find(&user)
+	if user.ID > 0 {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "已有该账号"})
+		return
+	}
+	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(requestUser.Password), bcrypt.DefaultCost)
+	newUser := models.User{
+		Name:     requestUser.Name,
+		Email:    requestUser.Email,
+		Phone:    requestUser.Phone,
+		Password: string(hashPassword),
+	}
+	if err := db.Create(&newUser).Error; err == nil {
+		claims := common.Claims{
+			ID:       newUser.ID,
+			Email:    newUser.Email,
+			Password: newUser.Password,
+			Role:     "user",
+			Name:     newUser.Name,
+			Phone:    newUser.Phone,
+		}
+		if token, err := common.ReleaseToken(claims); err == nil {
+			path := fmt.Sprintf("public/user/%d", newUser.ID)
+			os.Mkdir(path, os.ModePerm)
+			herr := rdb.HSet(ctx, string(newUser.ID), "token", token, "count", 0, "time", time.Now().Unix())
+			if herr.Err() != nil {
+				ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常"})
+				return
+			}
+			ctx.JSON(200, gin.H{"code": 200, "msg": "注册成功", "token": token})
+		} else {
+			ctx.JSON(500, gin.H{"code": 500, "msg": "token发放错误"})
+		}
+	} else {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误，数据库异常"})
+		return
+	}
+}
+func UserLoginByPassword(ctx *gin.Context) {
+	db := common.GetDB()
+	rdb := common.GetRedis()
+	account := ctx.PostForm("Account")
+	password := ctx.PostForm("Password")
+	var user models.User
+	if err := gvalid.Check(account, "email", nil); err == nil {
+		user.Email = account
+		db.Where("email=?", account).First(&user)
+		if user.ID == 0 {
+			ctx.JSON(422, gin.H{"code": 422, "msg": "该账号不存在"})
+			return
+		}
+		count, _ := rdb.HGet(ctx, "user"+string(user.ID), "count").Int()
+		if count >= 5 {
+			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
+			return
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+			//需要防止暴力破解
+			if count >= 5 {
+				//密码错误五次，冻结账号
+				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
+				if err != nil {
+					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
+					return
+				}
+				ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
+				return
+			} else {
+				//记录密码错误次数
+				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()).Err()
+				if err != nil {
+					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
+					return
+				}
+			}
+			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误"})
+			return
+		}
+
+		claims := common.Claims{
+			ID:       user.ID,
+			Email:    user.Email,
+			Password: user.Password,
+			Name:     user.Name,
+			Role:     "user",
+			Phone:    user.Phone,
+		}
+		token, err := common.ReleaseToken(claims)
+		if err != nil {
+			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常,token生成失败"})
+			return
+		}
+
+		if err != nil {
+			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常，Redis异常"})
+			return
+		}
+		rdb.Del(ctx, "user"+string(user.ID))
+		//rdb.HDel(ctx, "user"+string(user.ID),"count","time")
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToUserDto(user)})
+		return
+	}
+
+	if err := gvalid.Check(account, "phone", nil); err == nil {
+		user.Phone = account
+		db.Where("phone=?", account).First(&user)
+		if user.ID == 0 {
+			ctx.JSON(422, gin.H{"code": 422, "msg": "该账号不存在"})
+			return
+		}
+		count, _ := rdb.HGet(ctx, "user"+string(user.ID), "count").Int()
+		if count >= 5 {
+			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
+			return
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+			//需要防止暴力破解
+			if count >= 5 {
+				//密码错误五次，冻结账号
+				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
+				if err != nil {
+					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
+					return
+				}
+				ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
+				return
+			} else {
+				//记录密码错误次数
+				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()).Err()
+				if err != nil {
+					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
+					return
+				}
+			}
+			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误"})
+			return
+		}
+
+		claims := common.Claims{
+			Email:    user.Email,
+			Password: user.Password,
+			Name:     user.Name,
+			Role:     "user",
+			Phone:    user.Phone,
+		}
+		token, err := common.ReleaseToken(claims)
+		if err != nil {
+			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常,token生成失败"})
+			return
+		}
+
+		if err != nil {
+			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常，Redis异常"})
+			return
+		}
+		//rdb.HDel(ctx, "user"+string(user.ID),"count","time")
+		rdb.Del(ctx, "user"+string(user.ID))
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToUserDto(user)})
+		return
+	}
+	ctx.JSON(422, gin.H{"code": 200, "msg": "账号或者密码出错"})
+
+}
+func UserLoginByCaptcha(ctx *gin.Context) {
+
+}
+func UserUploadAvater(ctx *gin.Context) {
+	db := common.GetDB()
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(reflect.TypeOf(claims))
+	//fmt.Println(claims.(*common.Claims))
+	c := claims.(*common.Claims)
+	var u models.User
+	u.ID = c.ID
+	avater, _ := ctx.FormFile("Avater")
+	ext := path.Ext(avater.Filename)
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".bmp" && ext != ".png" {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "图片格式出错"})
+		return
+	}
+	size := avater.Size
+	if size > 512000 {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "图片过大"})
+		return
+	}
+
+	path := fmt.Sprintf("public/user/%d/avater/", c.ID)
+
+	os.RemoveAll(path)
+	os.MkdirAll(path, os.ModePerm)
+	if err := ctx.SaveUploadedFile(avater, path+avater.Filename); err != nil {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "上传出错"})
+		return
+	}
+	err := db.Model(&u).Update("avater", path+avater.Filename)
+	if err != nil {
+		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功"})
+	} else {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "系统出错"})
+	}
+}
+func UserUpdatePassword(ctx *gin.Context) {
+	rdb := common.GetRedis()
+	db := common.GetDB()
+	claims, _ := ctx.Get("Claims")
+	c := claims.(*common.Claims)
+	newPassword := ctx.PostForm("Password")
+	var u models.User
+	u.ID = c.ID
+	if err := gvalid.Check(newPassword, "password", nil); err != nil {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "密码格式不对,6位以上"})
+		return
+	}
+	hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "系统密码处理错误"})
+		return
+	}
+	if err := db.Model(&u).Update("password", hashNewPassword).Error; err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "修改失败"})
+	} else {
+		fmt.Println(u.ID)
+		rdb.HDel(ctx, "user"+string(c.ID))
+		ctx.JSON(200, gin.H{"code": 200, "msg": "修改密码成功"})
+	}
+
+}
+func UserForgetPasswordByPhone(ctx *gin.Context) {
+
+}
+func UserForgetPasswordByEmail(ctx *gin.Context) {
+	rdb := common.GetRedis()
+	db := common.GetDB()
+	var user models.User
+	email := ctx.PostForm("Email")
+	password := ctx.PostForm("Password")
+
+	db.Where("email=?", email).First(&user)
+
+	if err := gvalid.Check(password, "password", nil); err != nil {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "密码格式不对,6位以上"})
+		return
+	}
+	hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "系统密码处理错误"})
+		return
+	}
+	user.Password = string(hashNewPassword)
+
+	if err := db.Model(&user).Error; err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "修改失败"})
+	} else {
+		rdb.Del(ctx, "user"+string(user.ID))
+		//	rdb.HDel(ctx, "user"+string(user.ID),"count","time")
+		ctx.JSON(200, gin.H{"code": 200, "msg": "修改密码成功"})
+	}
+}
+
+func UserUpdateUsername(ctx *gin.Context) {
+	db := common.GetDB()
+	claims, _ := ctx.Get("Claims")
+	c := claims.(*common.Claims)
+	newName := ctx.PostForm("Name")
+	var u models.User
+	u.ID = c.ID
+	if len(newName) == 0 {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "昵称为空"})
+	} else if len(newName) > 20 {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "昵称过长"})
+	}
+	if err := db.Model(&u).Update("name", newName).Error; err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "修改失败"})
+	}
+	ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功"})
+}
+func UserInfo(ctx *gin.Context) {
+	db := common.GetDB()
+	claims, _ := ctx.Get("Claims")
+	c := claims.(*common.Claims)
+	var u models.User
+	u.ID = c.ID
+	db.First(&u)
+	ctx.JSON(200, gin.H{"code": 200, "msg": "查找成功", "data": models.ToUserDto(u)})
+}

@@ -1,0 +1,27 @@
+server:
+  port: 8080
+datasource:
+  host: 47.100.108.193
+  port: 3306
+  database: te
+  username: root
+  password: czx987852
+  charset: utf8mb4
+redis:
+  addr: 47.100.108.193:6379
+  password: czx987852
+  db: 0
+smtp:
+  port: 465
+  host: smtp.163.com
+  email: clf2863768433@163.com
+  password: qazwsxedc2580
+mongodb:
+  host: 39.106.254.249
+  port: 27017
+  username: admin
+  password: 123456
+  logdb: logdb
+  logcollection: log_col
+
+
