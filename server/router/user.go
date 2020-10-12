@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"te/controllers"
-	"te/middleware"
+	"server/controllers"
+	"server/middleware"
 )
 
 func UserRouter(r *gin.Engine) *gin.Engine {

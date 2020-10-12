@@ -7,8 +7,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"path"
-	"te/common"
-	"te/models"
+	"server/common"
+	"server/models"
 	"time"
 )
 

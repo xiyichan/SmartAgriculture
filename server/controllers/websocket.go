@@ -5,19 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
-	"te/common"
+	"server/common"
 )
 
-
-var(
+var (
 	upgrader = websocket.Upgrader{
 		// 允许跨域
-		CheckOrigin:func(r *http.Request) bool{
+		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
 )
-
 
 func WSHandler(ctx *gin.Context) {
 	//	w.Write([]byte("hello"))
@@ -35,12 +33,12 @@ func WSHandler(ctx *gin.Context) {
 		return
 	}
 	//TODO:传入用户id
-	if conn, err = common.InitConnection(wsConn,"uuid"); err != nil {
+	if conn, err = common.InitConnection(wsConn, "uuid"); err != nil {
 		goto ERR
 	}
 
 	//TODO: 用户id作为key
-	common.WebSocketMap.Range(func(k,v interface{})bool{
+	common.WebSocketMap.Range(func(k, v interface{}) bool {
 		fmt.Print(k)
 		fmt.Print(":")
 		fmt.Print(v)

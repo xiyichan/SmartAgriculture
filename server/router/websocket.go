@@ -2,11 +2,11 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"te/controllers"
+	"server/controllers"
 )
 
 func WebSocketRouter(r *gin.Engine) *gin.Engine {
 
-	r.GET("/ws",controllers.WSHandler)
+	r.GET("/ws", controllers.WSHandler)
 	return r
 }

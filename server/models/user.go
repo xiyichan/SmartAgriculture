@@ -9,6 +9,8 @@ type User struct {
 	Email    string `gorm:"unique;DEFAULT:NULL"`
 	Password string `gorm:"DEFAULT:NULL"`
 	Avater   string `gorm:"DEFAULT:NULL"`
+
+	Pis []Pi `gorm:"foreignKey:UserId"`
 }
 type UserDto struct {
 	Name   string `json:"Name"`

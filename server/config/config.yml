@@ -3,7 +3,7 @@ server:
 datasource:
   host: 47.100.108.193
   port: 3306
-  database: te
+  database: clf
   username: root
   password: czx987852
   charset: utf8mb4
@@ -23,5 +23,13 @@ mongodb:
   password: 123456
   logdb: logdb
   logcollection: log_col
+aliyuniot:
+  accessKey: LTAI4FiwZ4r1BZ5cz1kyhuFc
+  accessSecret: drErA9WaHJz2S5D728w0HvyvYhBg7d
+  regionId: cn-shanghai
+  uid: 1734109065164743
+  region: cn-shanghai
+  consumerGroupId: DEFAULT_GROUP
+  clientId: 47.100.192.108
 
 
