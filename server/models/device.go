@@ -7,15 +7,15 @@ import (
 type Pi struct {
 	gorm.Model
 	ProductKey   string
-	DeviceName   string
+	DeviceName   string `gorm:"unique;not null;primary_key"`
 	DeviceSecret string
 	NickName     string
 	IotId        string `gorm:"unique;not null;primary_key"`
 
-	Status      int
-	FanSwitch   bool
-	WaterSwitch bool
-	LightSwitch bool
+	Status      string
+	FanSwitch   *bool
+	WaterSwitch *bool
+	LightSwitch *bool
 
 	Temperature    float32
 	Humidity       float32
@@ -28,7 +28,7 @@ type Pi struct {
 //返回当前数据给用户的
 type PiData struct {
 	IotId          string
-	Status         int
+	Status         string
 	FanSwitch      bool
 	WaterSwitch    bool
 	LightSwitch    bool

@@ -194,22 +194,22 @@ func (am *AmqpManager) generateReceiver() error {
 }
 
 func deviceFilter(message string) {
-	//db:=GetDB()
-	fmt.Println(message)
+	db := GetDB()
+	//fmt.Println(message)
 	j := gjson.New(message)
 	productKey := j.GetString("productKey")
 	iotId := j.GetString("iotId")
 	gmtCreate := j.GetString("gmtCreate")
 	//items := j.GetString("items")
-	//status := j.GetString("status")
-	//	deviceName := j.GetString("deviceName")
+	status := j.GetString("status")
+	deviceName := j.GetString("deviceName")
 	temperature := j.GetFloat32("items.temperature.value")
 	humidity := j.GetFloat32("items.humidity.value")
 	lightIntensity := j.GetInt("items.light_intensity.value")
 	soil := j.GetInt("items.soil.value")
-	//	fan_switch:=j.GetBool("items.fan_switch.value")
-	//light_switch:=j.GetBool("items.light_switch.value")
-	//water_switch:=j.GetBool("items.water_switch.value")
+	fanSwitch := j.GetBool("items.fan_switch.value")
+	lightSwitch := j.GetBool("items.light_switch.value")
+	waterSwitch := j.GetBool("items.water_switch.value")
 
 	switch productKey {
 	//pi
@@ -224,12 +224,36 @@ func deviceFilter(message string) {
 		}
 		year := time.Now().Year()
 		month := time.Now().Month()
-		fmt.Println(piHistoryData)
-		piname := fmt.Sprintf("%v-%s-pi", year, month)
-		fmt.Println(piname)
-	//piname:= strconv.Itoa(year)+"-"+ strconv.Itoa(month)+"-pi"
-	//err:=db.Create(&piHistoryData).Table(piname)
-
+		//fmt.Println(piHistoryData)
+		piname := fmt.Sprintf("%v-%d-pi", year, month)
+		//fmt.Println(piname)
+		//piname:= strconv.Itoa(year)+"-"+ strconv.Itoa(month)+"-pi"
+		err := db.Table(piname).Create(&piHistoryData).Error
+		if err != nil {
+			//panic(err)
+			//TODO:应该写入日志
+			fmt.Println(err)
+		}
+		//	fmt.Println(status)
+		pi := models.Pi{
+			Temperature:    temperature,
+			Humidity:       humidity,
+			LightIntensity: lightIntensity,
+			SoilMoisture:   soil,
+			Status:         status,
+			FanSwitch:      &fanSwitch,
+			LightSwitch:    &lightSwitch,
+			WaterSwitch:    &waterSwitch,
+		}
+		//fmt.Println(pi.Status)
+		e := db.Model(&models.Pi{}).Where("device_name=?", deviceName).Updates(pi).Error
+		//model.不写0值
+		//e:=db.Exec("update pis set status =? where iot_id=?",status,iotId).Error
+		if e != nil {
+			//panic(err)
+			//TODO:应该写入日志
+			fmt.Println(e)
+		}
 	default:
 
 	}

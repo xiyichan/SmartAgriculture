@@ -7,6 +7,6 @@ import (
 
 func AdminRouter(r *gin.Engine) *gin.Engine {
 	r.POST("api/admin/login/password", controllers.AdminLoginByPassword)
-
+	r.POST("api/admin/register")
 	return r
 }

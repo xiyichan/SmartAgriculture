@@ -145,12 +145,11 @@ func AdminLoginByPassword(ctx *gin.Context) {
 func AdminAddByEmail(ctx *gin.Context) {
 	claims, _ := ctx.Get("claims")
 	fmt.Println(claims.(common.Claims).Role)
-	if claims.(common.Claims).Role == "admin" {
+	if claims.(common.Claims).Role != "admin" {
 		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
 		return
 	}
 	db := common.GetDB()
-	rdb := common.GetRedis()
 	var requestAdmin = models.Admin{}
 	ctx.Bind(&requestAdmin)
 	if requestAdmin.Email != "" {
@@ -186,31 +185,13 @@ func AdminAddByEmail(ctx *gin.Context) {
 		Phone:    requestAdmin.Phone,
 		Password: string(hashPassword),
 	}
-	if err := db.Create(&newAdmin).Error; err == nil {
-		claims := common.Claims{
-			ID:       newAdmin.ID,
-			Email:    newAdmin.Email,
-			Password: newAdmin.Password,
-			Role:     "admin",
-			Name:     newAdmin.Name,
-			Phone:    newAdmin.Phone,
-		}
-		if token, err := common.ReleaseToken(claims); err == nil {
-			path := fmt.Sprintf("public/admin/%d", newAdmin.ID)
-			os.Mkdir(path, os.ModePerm)
-			herr := rdb.HSet(ctx, string(newAdmin.ID), "token", token, "count", 0, "time", time.Now().Unix())
-			if herr.Err() != nil {
-				ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常"})
-				return
-			}
-			ctx.JSON(200, gin.H{"code": 200, "msg": "注册成功", "token": token})
-		} else {
-			ctx.JSON(500, gin.H{"code": 500, "msg": "token发放错误"})
-		}
-	} else {
-		ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误，数据库异常"})
-		return
+	if err := db.Create(&newAdmin).Error; err != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
+
 	}
+	path := fmt.Sprintf("public/admin/%d", newAdmin.ID)
+	os.Mkdir(path, os.ModePerm)
+	ctx.JSON(200, gin.H{"code": 200, "msg": "添加"})
 }
 
 //修改个人信息

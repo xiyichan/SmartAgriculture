@@ -107,3 +107,7 @@ func UserGetPiProperty(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "查询成功", "data": piData})
 }
+
+func UserGetPiHistoryData(ctx *gin.Context) {
+
+}
