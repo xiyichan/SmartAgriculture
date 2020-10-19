@@ -63,7 +63,7 @@ export default {
   },
   created() {
     this.loading = true;
-    this.$axios.weatherList(this.requestData).then((res) => {
+    this.$axios.piList(this.requestData).then((res) => {
       if (res.code == 200) {
         for (let i = 0; i < res.data.length; i++) {
           for (let key in res.data[i]) {
@@ -82,7 +82,7 @@ export default {
     updateList() {
       this.loading = true;
       this.$axios
-        .weatherList(this.requestData)
+        .piList(this.requestData)
         .then((res) => {
           if (res.code == 200) {
             for (let i = 0; i < res.data.length; i++) {
@@ -100,7 +100,7 @@ export default {
     },
     pageChange(e) {
       this.requestData.PageIndex = e;
-      this.$axios.weatherList(this.requestData).then((res) => {
+      this.$axios.piList(this.requestData).then((res) => {
         if (res.code == 200) {
           for (let i = 0; i < res.data.length; i++) {
             for (let key in res.data[i]) {
@@ -124,10 +124,10 @@ export default {
         this.loading = true;
         console.log(e);
         var d = {
-          WSID:e.row.WSID
+          IotId:e.row.IotId
         };
         this.$axios
-          .weatherDelete(d)
+          .piDelete(d)
           .then((res) => {
             if (res.code == 200) {
               this.$message({
@@ -153,7 +153,7 @@ export default {
       });
     },
     newWeather(){
-        this.$axios.weatherNew().then(res=>{
+        this.$axios.piNew().then(res=>{
             if(res.code==200){
                 this.$message({
                 type: "success",

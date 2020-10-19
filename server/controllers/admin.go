@@ -9,7 +9,6 @@ import (
 	"path"
 	"server/common"
 	"server/models"
-	"strconv"
 	"time"
 )
 
@@ -198,8 +197,7 @@ func AdminAddByEmail(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"code": 200, "msg": "添加"})
 }
 
-
-func AdminUploadAvatar(ctx *gin.Context){
+func AdminUploadAvatar(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
 	if claims.(*common.Claims).Role != "admin" {
@@ -237,53 +235,6 @@ func AdminUploadAvatar(ctx *gin.Context){
 	}
 }
 
-func AdminUpdatePassword(ctx *gin.Context){
+func AdminUpdatePassword(ctx *gin.Context) {
 
-}
-
-func UserList(context *gin.Context) {
-	db := common.GetDB()
-	pageIndex := context.PostForm("PageIndex")
-	pageSize := context.PostForm("PageSize")
-	if pageIndex == "" || pageSize == "" {
-		context.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
-		return
-	}
-	pi, _ := strconv.Atoi(pageIndex)
-	ps, _ := strconv.Atoi(pageSize)
-
-	//var users []models.User
-	var dto []models.UserDto
-
-	var count int64
-	//正序
-	db.Model(&models.User{}).Count(&count)
-	e := db.Model(&models.User{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
-	if e != nil {
-		context.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
-	} else {
-		context.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功","count":count})
-	}
-}
-
-func PiList(context *gin.Context){
-	db := common.GetDB()
-	pageIndex := context.PostForm("PageIndex")
-	pageSize := context.PostForm("PageSize")
-	if pageIndex == "" || pageSize == "" {
-		context.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
-		return
-	}
-	pi, _ := strconv.Atoi(pageIndex)
-	ps, _ := strconv.Atoi(pageSize)
-	var dto[]models.PiListData
-
-	var count int64
-	db.Model(&models.Pi{}).Count(&count)
-	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
-	if e != nil {
-		context.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
-	} else {
-		context.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功","count":count})
-	}
 }

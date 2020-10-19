@@ -9,6 +9,7 @@ import (
 	"path"
 	"server/common"
 	"server/models"
+	"strconv"
 	"time"
 )
 
@@ -330,4 +331,34 @@ func UserInfo(ctx *gin.Context) {
 	u.ID = c.ID
 	db.First(&u)
 	ctx.JSON(200, gin.H{"code": 200, "msg": "查找成功", "data": models.ToUserDto(u)})
+}
+func UserList(ctx *gin.Context) {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db := common.GetDB()
+	pageIndex := ctx.PostForm("PageIndex")
+	pageSize := ctx.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+
+	//var users []models.User
+	var dto []models.UserDto
+
+	var count int64
+	//正序
+	db.Model(&models.User{}).Count(&count)
+	e := db.Model(&models.User{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		ctx.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功", "count": count})
+	}
 }

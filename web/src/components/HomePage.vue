@@ -103,7 +103,7 @@ export default {
     this.navList = [
       { name: "/Home", navItem: "首页", icon: "el-icon-discount" },
       { name: "/UserList", navItem: "用户管理", icon: "el-icon-user" },
-      { name: "/Weather", navItem: "气象站管理", icon: "el-icon-umbrella" },
+      { name: "/Pi", navItem: "气象站管理", icon: "el-icon-umbrella" },
       { name: "/Password", navItem: "修改密码", icon: "el-icon-coin" },
     ];
     //标题的显示

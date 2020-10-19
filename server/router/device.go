@@ -13,5 +13,7 @@ func DeviceRouter(r *gin.Engine) *gin.Engine {
 	pi.POST("/set/property", controllers.UserSetPiProperty)
 	pi.GET("/get/property", controllers.UserGetPiProperty)
 	pi.POST("/bind/user", controllers.UserBindPi)
+	pi.POST("list", controllers.PiList)
+	pi.POST("delete", controllers.PiDelete)
 	return r
 }

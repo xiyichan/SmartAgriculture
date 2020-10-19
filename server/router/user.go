@@ -14,7 +14,7 @@ func UserRouter(r *gin.Engine) *gin.Engine {
 	UserToken.POST("update/password", controllers.UserUpdatePassword)
 	UserToken.GET("info", controllers.UserInfo)
 	UserToken.POST("update/name", controllers.UserUpdateUsername)
-
+	UserToken.POST("list", controllers.UserList)
 	UserEmailCaptcha := r.Group("api/user").Use(middleware.EmailCaptchaMiddleware())
 	UserEmailCaptcha.POST("/register/email", controllers.UserRegisterByEmail)
 	UserEmailCaptcha.POST("/forget/password/email", controllers.UserForgetPasswordByEmail)

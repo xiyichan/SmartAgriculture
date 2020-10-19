@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"server/common"
 	"server/models"
+	"strconv"
 )
 
 func RegisterPi(ctx *gin.Context) {
@@ -32,7 +33,7 @@ func RegisterPi(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(response.GetHttpContentString())
+	//fmt.Print(response.GetHttpContentString())
 
 	j := gjson.New(response.GetHttpContentString())
 	data := gjson.New(j.Get("Data"))
@@ -109,5 +110,71 @@ func UserGetPiProperty(ctx *gin.Context) {
 }
 
 func UserGetPiHistoryData(ctx *gin.Context) {
+
+}
+func PiList(ctx *gin.Context) {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db := common.GetDB()
+	pageIndex := ctx.PostForm("PageIndex")
+	pageSize := ctx.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+	var dto []models.PiListData
+
+	var count int64
+	db.Model(&models.Pi{}).Count(&count)
+	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		ctx.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功", "count": count})
+	}
+}
+
+func PiDelete(ctx *gin.Context) {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+
+	client := common.GetAliyunIotClient()
+	iotId := ctx.PostForm("IotId")
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Scheme = "https" // https | http
+	request.Domain = "iot.cn-shanghai.aliyuncs.com"
+	request.Version = "2018-01-20"
+	request.ApiName = "DeleteDevice"
+	request.QueryParams["RegionId"] = "cn-hangzhou"
+
+	request.QueryParams["IotId"] = iotId
+
+	_, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println(response)
+
+	db := common.GetDB()
+
+	//var pi models.Pi
+	//pi.IotId=iotId
+	e := db.Where("iot_id=?", iotId).Delete(&models.Pi{}).Error
+	if e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "删除失败"})
+	} else {
+		ctx.JSON(200, gin.H{"code": 200, "msg": "删除成功"})
+	}
 
 }

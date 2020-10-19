@@ -6,7 +6,7 @@ import Home from '../components/Home.vue'
 import UserList from '../components/UserManagement/UserList.vue'
 import Password from "../components/Password.vue"
 
-import Weather from "../components/Weather.vue"
+import Pi from "../components/Pi.vue"
 Vue.use(VueRouter)
 
 const routes = [{
@@ -36,9 +36,9 @@ const routes = [{
                 component: Password
             },
             {
-                path: "/Weather",
-                name: "Weather",
-                component: Weather
+                path: "/Pi",
+                name: "Pi",
+                component: Pi
             },
 
         ]
