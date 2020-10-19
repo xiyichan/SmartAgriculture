@@ -6,8 +6,10 @@ import (
 	"github.com/gogf/gf/util/gvalid"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"path"
 	"server/common"
 	"server/models"
+	"strconv"
 	"time"
 )
 
@@ -75,10 +77,11 @@ func AdminLoginByPassword(ctx *gin.Context) {
 		}
 		rdb.Del(ctx, "admin"+string(admin.ID))
 		//rdb.HDel(ctx, "admin"+string(admin.ID),"count","time")
-		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": admin})
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToAdminDto(admin)})
 		return
 	}
 
+	//电话登录
 	if err := gvalid.Check(account, "phone", nil); err == nil {
 		admin.Phone = account
 		db.Where("phone=?", account).First(&admin)
@@ -134,7 +137,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 		}
 		//rdb.HDel(ctx, "admin"+string(admin.ID),"count","time")
 		rdb.Del(ctx, "admin"+string(admin.ID))
-		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": admin})
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToAdminDto(admin)})
 		return
 	}
 	ctx.JSON(422, gin.H{"code": 200, "msg": "账号或者密码出错"})
@@ -142,10 +145,11 @@ func AdminLoginByPassword(ctx *gin.Context) {
 }
 
 //添加管理员，从管理员页面新添一个。
+//
 func AdminAddByEmail(ctx *gin.Context) {
-	claims, _ := ctx.Get("claims")
-	fmt.Println(claims.(common.Claims).Role)
-	if claims.(common.Claims).Role != "admin" {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
 		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
 		return
 	}
@@ -194,6 +198,92 @@ func AdminAddByEmail(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"code": 200, "msg": "添加"})
 }
 
-//修改个人信息
 
-//
+func AdminUploadAvatar(ctx *gin.Context){
+	db := common.GetDB()
+	claims, _ := ctx.Get("Claims")
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	c := claims.(*common.Claims)
+	var u models.Admin
+	u.ID = c.ID
+	avatar, _ := ctx.FormFile("Avatar")
+	ext := path.Ext(avatar.Filename)
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".bmp" && ext != ".png" {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "图片格式出错"})
+		return
+	}
+	size := avatar.Size
+	if size > 512000 {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "图片过大"})
+		return
+	}
+
+	path := fmt.Sprintf("public/admin/%d/avatar/", c.ID)
+
+	os.RemoveAll(path)
+	os.MkdirAll(path, os.ModePerm)
+	if err := ctx.SaveUploadedFile(avatar, path+avatar.Filename); err != nil {
+		ctx.JSON(400, gin.H{"code": 400, "msg": "上传出错"})
+		return
+	}
+	err := db.Model(&u).Update("avatar", path+avatar.Filename)
+	if err != nil {
+		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功"})
+	} else {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "系统出错"})
+	}
+}
+
+func AdminUpdatePassword(ctx *gin.Context){
+
+}
+
+func UserList(context *gin.Context) {
+	db := common.GetDB()
+	pageIndex := context.PostForm("PageIndex")
+	pageSize := context.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		context.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+
+	//var users []models.User
+	var dto []models.UserDto
+
+	var count int64
+	//正序
+	db.Model(&models.User{}).Count(&count)
+	e := db.Model(&models.User{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		context.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		context.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功","count":count})
+	}
+}
+
+func PiList(context *gin.Context){
+	db := common.GetDB()
+	pageIndex := context.PostForm("PageIndex")
+	pageSize := context.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		context.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+	var dto[]models.PiListData
+
+	var count int64
+	db.Model(&models.Pi{}).Count(&count)
+	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		context.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		context.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功","count":count})
+	}
+}

@@ -1,0 +1,27 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /api/email/captcha        --> server/controllers.SendEmailCaptcha (4 handlers)
+[GIN-debug] POST   /api/user/login/password  --> server/controllers.UserLoginByPassword (4 handlers)
+[GIN-debug] POST   /api/user/upload/avatar   --> server/controllers.UserUploadAvatar (5 handlers)
+[GIN-debug] POST   /api/user/update/password --> server/controllers.UserUpdatePassword (5 handlers)
+[GIN-debug] GET    /api/user/info            --> server/controllers.UserInfo (5 handlers)
+[GIN-debug] POST   /api/user/update/name     --> server/controllers.UserUpdateUsername (5 handlers)
+[GIN-debug] POST   /api/user/register/email  --> server/controllers.UserRegisterByEmail (5 handlers)
+[GIN-debug] POST   /api/user/forget/password/email --> server/controllers.UserForgetPasswordByEmail (5 handlers)
+[GIN-debug] GET    /ws                       --> server/controllers.WSHandler (4 handlers)
+[GIN-debug] POST   /api/admin/login/password --> server/controllers.AdminLoginByPassword (4 handlers)
+[GIN-debug] POST   /api/admin/register       --> server/middleware.EmailCaptchaMiddleware.func1 (6 handlers)
+[GIN-debug] POST   /api/admin/user/list      --> server/controllers.UserList (5 handlers)
+[GIN-debug] POST   /api/admin/upload/avatar  --> server/controllers.AdminUploadAvatar (5 handlers)
+[GIN-debug] POST   /api/device/pi/register   --> server/controllers.RegisterPi (5 handlers)
+[GIN-debug] POST   /api/device/pi/set/property --> server/controllers.UserSetPiProperty (5 handlers)
+[GIN-debug] GET    /api/device/pi/get/property --> server/controllers.UserGetPiProperty (5 handlers)
+[GIN-debug] POST   /api/device/pi/bind/user  --> server/controllers.UserBindPi (5 handlers)
+[GIN-debug] GET    /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] HEAD   /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2020/10/15 - 22:11:36 | 500 |   34.7435814s |             ::1 | POST     "/api/user/upload/avatar"

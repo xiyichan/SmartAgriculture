@@ -8,5 +8,19 @@ type Admin struct {
 	Phone    string `gorm:"unique;DEFAULT:NULL"`
 	Email    string `gorm:"unique;DEFAULT:NULL"`
 	Password string `gorm:"DEFAULT:NULL"`
-	Avater   string `gorm:"DEFAULT:NULL"`
+	Avatar   string `gorm:"DEFAULT:NULL"`
+}
+type AdminDto struct {
+	Name     string `json:"Name"`
+	Phone    string `json:"Phone"`
+	Email    string `json:"Email"`
+	Avatar   string `json:"Avatar"`
+}
+func ToAdminDto(admin Admin) AdminDto {
+	return AdminDto{
+		Name:   admin.Name,
+		Phone:  admin.Phone,
+		Email:  admin.Email,
+		Avatar: admin.Avatar,
+	}
 }

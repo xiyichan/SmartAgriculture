@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 	"server/models"
 	"strconv"
 )
@@ -55,6 +56,10 @@ func InitMysql() {
 			panic(e)
 		}
 	}
+
+	path := fmt.Sprintf("public/admin/%d/", admin.ID)
+	os.RemoveAll(path)
+	os.MkdirAll(path, os.ModePerm)
 	//year:=time.Now().Year()
 	//month:=time.Now().Month()
 	for i := 2020; i < 2022; i++ {

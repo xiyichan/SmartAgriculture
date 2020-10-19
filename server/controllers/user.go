@@ -85,6 +85,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 	account := ctx.PostForm("Account")
 	password := ctx.PostForm("Password")
 	var user models.User
+	//var dto models.UserDto
 	if err := gvalid.Check(account, "email", nil); err == nil {
 		user.Email = account
 		db.Where("email=?", account).First(&user)
@@ -144,6 +145,8 @@ func UserLoginByPassword(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToUserDto(user)})
 		return
 	}
+
+	//电话登录
 
 	if err := gvalid.Check(account, "phone", nil); err == nil {
 		user.Phone = account
@@ -209,7 +212,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 func UserLoginByCaptcha(ctx *gin.Context) {
 
 }
-func UserUploadAvater(ctx *gin.Context) {
+func UserUploadAvatar(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
 	//fmt.Println(reflect.TypeOf(claims))
@@ -217,27 +220,27 @@ func UserUploadAvater(ctx *gin.Context) {
 	c := claims.(*common.Claims)
 	var u models.User
 	u.ID = c.ID
-	avater, _ := ctx.FormFile("Avater")
-	ext := path.Ext(avater.Filename)
+	avatar, _ := ctx.FormFile("Avatar")
+	ext := path.Ext(avatar.Filename)
 	if ext != ".jpg" && ext != ".jpeg" && ext != ".bmp" && ext != ".png" {
 		ctx.JSON(400, gin.H{"code": 400, "msg": "图片格式出错"})
 		return
 	}
-	size := avater.Size
+	size := avatar.Size
 	if size > 512000 {
 		ctx.JSON(400, gin.H{"code": 400, "msg": "图片过大"})
 		return
 	}
 
-	path := fmt.Sprintf("public/user/%d/avater/", c.ID)
+	path := fmt.Sprintf("public/user/%d/avatar/", c.ID)
 
 	os.RemoveAll(path)
 	os.MkdirAll(path, os.ModePerm)
-	if err := ctx.SaveUploadedFile(avater, path+avater.Filename); err != nil {
+	if err := ctx.SaveUploadedFile(avatar, path+avatar.Filename); err != nil {
 		ctx.JSON(400, gin.H{"code": 400, "msg": "上传出错"})
 		return
 	}
-	err := db.Model(&u).Update("avater", path+avater.Filename)
+	err := db.Model(&u).Update("avatar", path+avatar.Filename)
 	if err != nil {
 		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功"})
 	} else {

@@ -8,15 +8,16 @@ type User struct {
 	Phone    string `gorm:"unique;DEFAULT:NULL"`
 	Email    string `gorm:"unique;DEFAULT:NULL"`
 	Password string `gorm:"DEFAULT:NULL"`
-	Avater   string `gorm:"DEFAULT:NULL"`
+	Avatar   string `gorm:"DEFAULT:NULL"`
 
 	Pis []Pi `gorm:"foreignKey:UserId"`
 }
 type UserDto struct {
+	Id string`json:"Id"`
 	Name   string `json:"Name"`
-	Phone  string `json:"hone"`
+	Phone  string `json:"Phone"`
 	Email  string `json:"Email"`
-	Avater string `json:"Avater"`
+	Avatar string `json:"Avatar"`
 }
 
 func ToUserDto(user User) UserDto {
@@ -24,6 +25,6 @@ func ToUserDto(user User) UserDto {
 		Name:   user.Name,
 		Phone:  user.Phone,
 		Email:  user.Email,
-		Avater: user.Avater,
+		Avatar: user.Avatar,
 	}
 }
