@@ -1,0 +1,8 @@
+<!--pages/login/login.wxml-->
+<view>
+<label >账号</label>
+<input name="input" placeholder="请输入邮箱/电话号码" bindinput="Account"></input>
+<label >密码</label>
+<input name="input" placeholder="请输入密码" bindinput="Password" password="true"></input>
+<button type="primary" bindtap="login">登录</button>
+</view>

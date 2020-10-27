@@ -143,7 +143,17 @@ func UserLoginByPassword(ctx *gin.Context) {
 		}
 		rdb.Del(ctx, "user"+string(user.ID))
 		//rdb.HDel(ctx, "user"+string(user.ID),"count","time")
-		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToUserDto(user)})
+		//fmt.Println(user.ID)
+		a:=models.ToUserDto(user)
+		a.ID=user.ID
+		//fmt.Println(a)
+		//userDto:=models.UserDto{
+		//	ID: user.ID,
+		//
+		//
+		//}
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data":a})
+
 		return
 	}
 
@@ -204,7 +214,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 		}
 		//rdb.HDel(ctx, "user"+string(user.ID),"count","time")
 		rdb.Del(ctx, "user"+string(user.ID))
-		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToUserDto(user)})
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": "models.ToUserDto(user)"})
 		return
 	}
 	ctx.JSON(422, gin.H{"code": 200, "msg": "账号或者密码出错"})

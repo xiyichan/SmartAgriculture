@@ -9,6 +9,7 @@ import (
 	"path"
 	"server/common"
 	"server/models"
+	"strconv"
 	"time"
 )
 
@@ -208,6 +209,7 @@ func AdminUploadAvatar(ctx *gin.Context) {
 	var u models.Admin
 	u.ID = c.ID
 	avatar, _ := ctx.FormFile("Avatar")
+	//fmt.Println(avatar)
 	ext := path.Ext(avatar.Filename)
 	if ext != ".jpg" && ext != ".jpeg" && ext != ".bmp" && ext != ".png" {
 		ctx.JSON(400, gin.H{"code": 400, "msg": "图片格式出错"})
@@ -229,12 +231,89 @@ func AdminUploadAvatar(ctx *gin.Context) {
 	}
 	err := db.Model(&u).Update("avatar", path+avatar.Filename)
 	if err != nil {
-		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功"})
+		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功","avatar":path+avatar.Filename})
 	} else {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "系统出错"})
 	}
 }
 
 func AdminUpdatePassword(ctx *gin.Context) {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db := common.GetDB()
+	password:=ctx.PostForm("Password")
+	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	e:=db.Model(&models.Admin{}).Where("id=?",claims.(*common.Claims).ID).Update("password",string(hashPassword)).Error
+	if  e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
+		return
+	}
+	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功"})
+}
+func AdminUpdateName(ctx *gin.Context){
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db := common.GetDB()
+	name:=ctx.PostForm("Name")
 
+	e:=db.Model(&models.Admin{}).Where("id=?",claims.(*common.Claims).ID).Update("name",name).Error
+	if  e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
+		return
+	}
+	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功"})
+}
+func AdminInfo(ctx *gin.Context){
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db:=common.GetDB()
+	var admin models.Admin
+	e:=db.First(&admin).Where("id=?",claims.(*common.Claims).ID).Error
+	if  e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
+		return
+	}
+	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功","data":models.ToAdminDto(admin)})
+}
+func AdminList(ctx *gin.Context) {
+	claims, _ := ctx.Get("Claims")
+	//fmt.Println(claims.(common.Claims).Role)
+	if claims.(*common.Claims).Role != "admin" {
+		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
+		return
+	}
+	db := common.GetDB()
+	pageIndex := ctx.PostForm("PageIndex")
+	pageSize := ctx.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+
+	//var users []models.User
+	var dto []models.AdminDto
+
+	var count int64
+	//正序
+	db.Model(&models.Admin{}).Count(&count)
+	e := db.Model(&models.Admin{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		ctx.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功", "count": count})
+	}
 }

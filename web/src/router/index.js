@@ -4,8 +4,8 @@ import Login from '../components/Login.vue'
 import HomePage from '../components/HomePage.vue'
 import Home from '../components/Home.vue'
 import UserList from '../components/UserManagement/UserList.vue'
-import Password from "../components/Password.vue"
-
+import AdminList from "../components/AdminList.vue";
+import Register from "../components/Register.vue"
 import Pi from "../components/Pi.vue"
 Vue.use(VueRouter)
 
@@ -31,16 +31,20 @@ const routes = [{
                 component: UserList,
             },
             {
-                path: "/Password",
-                name: "Password",
-                component: Password
-            },
-            {
                 path: "/Pi",
                 name: "Pi",
                 component: Pi
             },
-
+            {
+                path: "/AdminList",
+                name: "AdminList",
+                component: AdminList,
+            },
+            {
+                path: "/Register",
+                name: "Register",
+                component: Register,
+            },
         ]
     }
 ]

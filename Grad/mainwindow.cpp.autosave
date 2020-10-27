@@ -1,0 +1,298 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include<wiringPi.h>
+#include<QDebug>
+#include<QString>
+#include<QTimer>
+#include"ads1115.h"
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+
+    ui->setupUi(this);
+
+    ui->pushButton_water->setStyleSheet("background:rgb(0,255,0)");
+    ui->pushButton_fan->setStyleSheet("background:rgb(0,255,0)");
+    ui->pushButton_light->setStyleSheet("background:rgb(0,255,0)");
+    if(wiringPiSetup()==-1){ ui->pushButton_water->setStyleSheet("background:rgb(255,0,0)");
+        qDebug()<<"setup wiringpi failed";
+    }
+    ads1115Setup(100,0x48);
+    startTimer(5000);
+    m_client=new QMqttClient(this);
+    m_strProductKey="a1I7rPDpEx5";  //需要跟阿里云Iot平台一致;
+    m_strDeviceName="d5R46fOSfNNwVTNRuSaM";   //需要跟阿里云Iot平台一致;
+    m_strDeviceSecret="1c7985af68584e861990d66cce938a02";   //需要跟阿里云平台一致
+    m_strRegionId="cn-shanghai";
+
+    m_strPubTopic = "/sys/" + m_strProductKey + "/" + m_strDeviceName + "/thing/event/property/post";//发布topic
+    m_strSubTopic = "/sys/" + m_strProductKey + "/" + m_strDeviceName + "/thing/service/property/set";//订阅topic
+    m_strTargetServer = m_strProductKey + ".iot-as-mqtt." + m_strRegionId + ".aliyuncs.com";//域名
+
+    m_client->setHostname(m_strTargetServer);
+    m_client->setPort(1883);
+    QString clientId="d5R46fOSfNNwVTNRuSaM";         //表示客户端ID，建议使用设备的MAC地址或SN码，64字符内。
+    QString signmethod = "hmacsha1";    //加密方式
+    QString message ="clientId"+clientId+"deviceName"+m_strDeviceName+"productKey"+m_strProductKey;
+
+    m_client->setUsername(m_strDeviceName + "&" + m_strProductKey);
+
+    m_client->setClientId(clientId + "|securemode=3,signmethod=" + signmethod + "|");
+    // m_client->setPassword("36CF2FDDD251957716F2D6CCD52EB0741FF00FB4");
+    m_client->setPassword(QMessageAuthenticationCode::hash(message.toLocal8Bit(),
+                                                           m_strDeviceSecret.toLocal8Bit(),
+                                                           QCryptographicHash::Sha1).toHex());
+
+    m_client->connectToHost();
+
+
+
+
+    connect(m_client, &QMqttClient::messageReceived, this, [this](const QByteArray &message, const QMqttTopicName &topic) {
+        const QString content = QDateTime::currentDateTime().toString()
+                + QLatin1String(" Received Topic: ")
+                + topic.name()
+                + QLatin1String(" Message: ")
+                + message
+                + QLatin1Char('\n');
+        qDebug()<<content;
+        //parseCH(message);
+        parse(message);
+    });
+    //类似心跳包？一分钟一次
+    connect(m_client, &QMqttClient::pingResponseReceived, this, [this]() {
+        const QString content = QDateTime::currentDateTime().toString()
+                + QLatin1String(" PingResponse")
+                + QLatin1Char('\n');
+        qDebug()<<content;
+    });
+    // payload2="{\"id\":1,\"params\": {\"CH1\":10},\"method\": \"thing.event.property.post\"}";
+
+    //订阅
+    qDebug()<<m_strSubTopic;
+    auto subscription = m_client->subscribe(m_strSubTopic);
+    if (subscription) {
+        QMessageBox::critical(this, QLatin1String("Error"), QLatin1String("Could not subscribe. Is there a valid connection?"));
+
+    }
+
+
+    qDebug()<<QString::number(m_client->state());
+
+
+    setWaterSwitch(0);
+    setFanSwitch(0);
+    setLightSwitch(0);
+
+}
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+bool MainWindow::readDht11Data(){
+    unsigned char crc;
+    unsigned char i;
+    pinMode(dht11,OUTPUT);
+    digitalWrite(dht11,0);
+    delay(25);
+    digitalWrite(dht11,1);
+    pinMode(dht11,INPUT);
+    pullUpDnControl(dht11, PUD_UP);
+
+    delayMicroseconds(27);
+    if (digitalRead(dht11) == 0) //SENSOR ANS
+    {
+        while (!digitalRead(dht11))
+            ; //wait to high
+
+        for (i = 0; i < 32; i++)
+        {
+            while (digitalRead(dht11))
+                ; //data clock start
+            while (!digitalRead(dht11))
+                ; //data start
+            delayMicroseconds(HIGH_TIME);
+            data_dht11 *= 2;
+            if (digitalRead(dht11) == 1) //1
+            {
+                data_dht11++;
+            }
+        }
+
+        for (i = 0; i < 8; i++)
+        {
+            while (digitalRead(dht11))
+                ; //data clock start
+            while (!digitalRead(dht11))
+                ; //data start
+            delayMicroseconds(HIGH_TIME);
+            crc *= 2;
+            if (digitalRead(dht11) == 1) //1
+            {
+                crc++;
+            }
+        }
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void MainWindow::timerEvent(QTimerEvent *event){
+    pinMode(dht11,OUTPUT);
+    digitalWrite(dht11,1);
+    if(readDht11Data())
+    {
+        pinMode(dht11,OUTPUT);
+        digitalWrite(dht11,1);
+        temperature=QString::number((data_dht11>>8)&0xff,10)+"."+QString::number((data_dht11)&0xff,10);
+        humidity=QString::number((data_dht11>>24)&0xff,10)+"."+QString::number((data_dht11>>16)&0xff,10);
+        ui->label_humidity->setText(humidity);
+        ui->label_temperature->setText(temperature);
+    }
+    else{
+
+    }
+    data_dht11=0;
+    //ads1115
+    for(int i=100;i<104;i++){
+        ads1115_value[i-100]=(int16_t)analogRead(i);
+        ads1115_voltage[i-100]=ads1115_value[i-100]*(4.096/32768);
+    }
+    ui->label_soil->setText(QString::number(ads1115_value[0],10));
+    ui->label_lightIntensity->setText(QString::number(ads1115_value[1],10));
+
+    QString payload=QString("{\"id\":1,\"params\": {\"temperature\":%1,\"humidity\":%2,\"light_intensity\":%3,\"soil\":%4,\"water_switch\""
+                    ":%5,\"light_switch\":%6,\"fan_switch\":%7},\"method\": \"thing.event.property.post\"}").arg(temperature).arg(humidity)
+            .arg(ads1115_value[1]).arg(ads1115_value[0]).arg(water_switch).arg(light_switch).arg(fan_switch);
+    m_client->publish(m_strPubTopic,payload.toUtf8());
+}
+
+
+
+
+
+void MainWindow::on_pushButton_water_clicked()
+{
+    if(water_switch==false){
+        setWaterSwitch(1);
+    }else{
+        setWaterSwitch(0);
+    }
+}
+
+void MainWindow::on_pushButton_fan_clicked()
+{
+    if(fan_switch==false){
+        setFanSwitch(1);
+    }else{
+        setFanSwitch(0);
+    }
+}
+
+void MainWindow::on_pushButton_light_clicked()
+{
+    if(light_switch==false){
+        setLightSwitch(1);
+    }else{
+        setLightSwitch(0);
+    }
+}
+void MainWindow::parse(QString message){
+	QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(message.toUtf8(),&jsonError);  // 转化为 JSON 文档
+    if (!doucment.isNull()&&jsonError.error==QJsonParseError::NoError) {  // 解析未发生错误
+        if(doucment.isObject()){
+            QJsonObject object=doucment.object();
+            if(object.contains("params")){
+                QJsonValue value=object.value("params");
+                if(value.isObject()){
+                    QJsonObject obj=value.toObject();
+                    if(obj.contains("water_switch")){
+                        QJsonValue water=obj.value("water_switch");
+                        if(water.isDouble()){
+                           // water_switch=water.toDouble();
+                            //qDebug()<<water.toDouble();
+                            setWaterSwitch(water.toDouble());
+
+                        }
+                    }
+                    if(obj.contains("fan_switch")){
+                        QJsonValue fan=obj.value("fan_switch");
+                        if(fan.isDouble()){
+                            //fan_switch=fan.toDouble();
+                           // qDebug()<<fan.toDouble();
+                         setFanSwitch(fan.toDouble());
+                        }
+                    }
+                    if(obj.contains("light_switch")){
+                        QJsonValue l=obj.value("light_switch");
+                        if(l.isDouble()){
+                            //light_switch=l.toDouble();
+                           // qDebug()<<l.toDouble();
+                            setLightSwitch(l.toDouble());
+                        }
+                    }
+                }
+            }
+        }
+	
+	}
+}
+
+
+void MainWindow::setFanSwitch(bool s){
+    if(s==true){
+        pinMode(fan,OUTPUT);
+        digitalWrite(fan,1);
+        ui->pushButton_fan->setText("fan_open");
+        ui->pushButton_fan->setStyleSheet("background:rgb(255,0,0)");
+        fan_switch=true;
+    }
+    else{
+        pinMode(fan,OUTPUT);
+        ui->pushButton_fan->setText("fan_close");
+        ui->pushButton_fan->setStyleSheet("background:rgb(0,255,0)");
+        digitalWrite(fan,0);
+        fan_switch=false;
+    }
+}
+void MainWindow::setLightSwitch(bool s){
+    if(s==true){
+        pinMode(lightv,OUTPUT);
+        digitalWrite(lightv,1);
+        ui->pushButton_light->setText("light_open");
+        ui->pushButton_light->setStyleSheet("background:rgb(255,0,0)");
+        light_switch=true;
+
+    }
+    else{
+        pinMode(lightv,OUTPUT);
+        digitalWrite(lightv,0);
+        ui->pushButton_light->setText("light_close");
+        ui->pushButton_light->setStyleSheet("background:rgb(0,255,0)");
+        light_switch=false;
+    }
+}
+void MainWindow::setWaterSwitch(bool s){
+    if(s==true){
+        pinMode(water,OUTPUT);
+        digitalWrite(water,1);
+        ui->pushButton_water->setText("water_open");
+        ui->pushButton_water->setStyleSheet("background:rgb(255,0,0)");
+        water_switch=true;
+    }
+    else{
+        pinMode(water,OUTPUT);
+        ui->pushButton_water->setText("water_close");
+        ui->pushButton_water->setStyleSheet("background:rgb(0,255,0)");
+        digitalWrite(water,0);
+        water_switch=false;
+    }
+}

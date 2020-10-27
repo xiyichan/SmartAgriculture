@@ -5,9 +5,24 @@ export default {
     adminLogin: (data) => {
         return request('/api/admin/login/password', 'post', data)
     },
+    adminRegister:(data)=>{
+        return request('/api/admin/register', 'post', data)
+    },
+    verify: (data) => {
+        return request('/api/email/captcha', 'post', data)
+    },
     //管理员修改密码
     adminUpdatePassword: (data) => {
         return request('/api/admin/update/password', 'post', data)
+    },
+    adminUpdateName:(data)=>{
+        return request('/api/admin/update/name', 'post', data)
+    },
+    adminList:(data)=>{
+        return request('/api/admin/list', 'post', data)
+    },
+    adminInfo:(data)=>{
+        return request('api/admin/info','get',data)
     },
     //用户列表
     userList: (data) => {

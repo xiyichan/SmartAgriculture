@@ -5,6 +5,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/encoding/gjson"
+	qrcode "github.com/skip2/go-qrcode"
+	"image/color"
 	"net/http"
 	"server/common"
 	"server/models"
@@ -49,6 +51,16 @@ func RegisterPi(ctx *gin.Context) {
 		DeviceName:   DeviceName,
 		NickName:     "pi",
 	}
+
+	qr,err:=qrcode.New(IotId,qrcode.Medium)
+	if err != nil {
+		//log.Fatal(err)
+		panic(err)
+	} else {
+		qr.BackgroundColor = color.RGBA{255,255,255,255}
+		qr.ForegroundColor = color.White
+		qr.WriteFile(256,"./golang_qrcode.png")
+	}
 	e := db.Create(&newPi).Error
 	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误，数据库异常"})
@@ -85,9 +97,10 @@ func UserBindPi(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
 	iotId := ctx.PostForm("IotId")
+	deviceName:=ctx.PostForm("deviceName")
 	userId := claims.(*common.Claims).ID
 	var pi models.Pi
-	err := db.Model(&pi).Where("iot_id=?", iotId).Update("user_id", userId).Error
+	err := db.Model(&pi).Where("iot_id=?", iotId).Or("device_name=?",deviceName).Update("user_id", userId).Error
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "绑定失败，数据库出错"})
 		return
@@ -108,7 +121,9 @@ func UserGetPiProperty(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "查询成功", "data": piData})
 }
+func PiQrcode(ctx *gin.Context){
 
+}
 func UserGetPiHistoryData(ctx *gin.Context) {
 
 }

@@ -12,8 +12,10 @@ func AdminRouter(r *gin.Engine) *gin.Engine {
 
 	adminToken := r.Group("api/admin").Use(middleware.TokenMiddleware())
 	adminToken.POST("register", controllers.AdminAddByEmail, middleware.EmailCaptchaMiddleware())
-
+	adminToken.POST("update/password",controllers.AdminUpdatePassword)
 	adminToken.POST("upload/avatar", controllers.AdminUploadAvatar)
-
+	adminToken.POST("update/name",controllers.AdminUpdateName)
+	adminToken.GET("info",controllers.AdminInfo)
+	adminToken.POST("list",controllers.AdminList)
 	return r
 }
