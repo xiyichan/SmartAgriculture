@@ -1,13 +1,26 @@
 {
   "pages": [
     "pages/login/login",
-    "pages/index/index",
-    "pages/logs/logs",
     "pages/device/device",
-    "pages/user/user"
+    "pages/index/index",
+    "pages/user/user",
+    "pages/logs/logs",
+    "pages/forgetPassword/forgetPassword",
+    "pages/register/register"
   ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "智慧农业",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "useExtendedLib": {
+    "kbone": true,
+    "weui": true
+  },
   "tabBar": {
-    "custom": true,
     "color": "#7A7E83",
     "selectedColor": "#3cc51f",
     "borderStyle": "black",
@@ -23,20 +36,8 @@
         "pagePath": "pages/user/user",
         "iconPath": "images/user_default.png",
         "selectedIconPath": "images/user_active.png",
-        "text": "接口"
+        "text": "用户"
       }
     ]
-  },
-  "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "智慧农业",
-    "navigationBarTextStyle": "black"
-  },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json",
-  "useExtendedLib": {
-    "kbone": true,
-    "weui": true
   }
 }

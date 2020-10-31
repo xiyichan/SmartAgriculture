@@ -1,1 +1,4 @@
 /* pages/device/device.wxss */
+.device-view{
+  height: 50px;
+}

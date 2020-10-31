@@ -1,32 +1,11 @@
-// pages/device/device.js
+// pages/forgetPassword/forgetPassword.js
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    // 数据源
-    device:[
-      "Java",
-      "C",
-      "C++",
-      "Python",
-      ".NET",
-      "C#",
-      "JavaScript", 
-      "SQL",
-      "PHP",
-      "Java",
-      "C",
-      "C++",
-      "Python",
-      ".NET",
-      "C#",
-      "JavaScript", 
-      "SQL",
-      "PHP",
-      // 更多数据...
-    ]
+
   },
 
   /**

@@ -41,8 +41,8 @@ Page({
             });
           }else{
             wx.showModal({
-              title: "错误",
-              content: "用户名或者密码输入不正确"
+              title: "提示",
+              content: "添加成功"
             });
           }
         }

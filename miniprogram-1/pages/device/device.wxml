@@ -1,2 +1,17 @@
 <!--pages/device/device.wxml-->
-<text>pages/device/device.wxml</text>
+<view style="height:100vh;">
+<scroll-view scroll-y="true" style="height:90vh; " class="box-scroll" >
+  <block wx:for="{{device}}" wx:key="index">
+    <view class='device-view' bindtap="deviceDetail">
+      {{item}}
+    </view> 
+  </block>
+</scroll-view>
+<view style="height 20vh;">
+<button type="primary" bindtap="addDevice">添加设备</button>
+</view>
+</view>
+
+
+
+

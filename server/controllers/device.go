@@ -5,8 +5,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/encoding/gjson"
-	qrcode "github.com/skip2/go-qrcode"
-	"image/color"
 	"net/http"
 	"server/common"
 	"server/models"
@@ -52,15 +50,15 @@ func RegisterPi(ctx *gin.Context) {
 		NickName:     "pi",
 	}
 
-	qr,err:=qrcode.New(IotId,qrcode.Medium)
-	if err != nil {
-		//log.Fatal(err)
-		panic(err)
-	} else {
-		qr.BackgroundColor = color.RGBA{255,255,255,255}
-		qr.ForegroundColor = color.White
-		qr.WriteFile(256,"./golang_qrcode.png")
-	}
+	//qr,err:=qrcode.New(IotId,qrcode.Medium)
+	//if err != nil {
+	//	//log.Fatal(err)
+	//	panic(err)
+	//} else {
+	//	qr.BackgroundColor = color.RGBA{255,255,255,255}
+	//	qr.ForegroundColor = color.White
+	//	qr.WriteFile(256,"./golang_qrcode.png")
+	//}
 	e := db.Create(&newPi).Error
 	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误，数据库异常"})
@@ -134,6 +132,7 @@ func PiList(ctx *gin.Context) {
 		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
 		return
 	}
+
 	db := common.GetDB()
 	pageIndex := ctx.PostForm("PageIndex")
 	pageSize := ctx.PostForm("PageSize")
@@ -148,6 +147,33 @@ func PiList(ctx *gin.Context) {
 	var count int64
 	db.Model(&models.Pi{}).Count(&count)
 	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Find(&dto).Error
+	if e != nil {
+		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
+	} else {
+		ctx.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功", "count": count})
+	}
+}
+func UserPiList(ctx *gin .Context){
+	claims, _ := ctx.Get("Claims")
+	c := claims.(*common.Claims)
+	fmt.Println(c)
+	fmt.Println(c.ID)
+	userId:=c.ID
+	db := common.GetDB()
+	pageIndex := ctx.PostForm("PageIndex")
+	pageSize := ctx.PostForm("PageSize")
+	if pageIndex == "" || pageSize == "" {
+		ctx.JSON(422, gin.H{"code": 422, "msg": "分页设置为空"})
+		return
+	}
+	pi, _ := strconv.Atoi(pageIndex)
+	ps, _ := strconv.Atoi(pageSize)
+	var dto []models.PiData
+
+	var count int64
+	fmt.Println(userId)
+	db.Model(&models.Pi{}).Where("user_id=?",userId).Count(&count)
+	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Where("user_id=?",userId).Find(&dto).Error
 	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
 	} else {

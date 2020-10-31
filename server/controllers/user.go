@@ -131,6 +131,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 			Role:     "user",
 			Phone:    user.Phone,
 		}
+		fmt.Println(claims)
 		token, err := common.ReleaseToken(claims)
 		if err != nil {
 			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常,token生成失败"})
@@ -217,7 +218,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": "models.ToUserDto(user)"})
 		return
 	}
-	ctx.JSON(422, gin.H{"code": 200, "msg": "账号或者密码出错"})
+	ctx.JSON(422, gin.H{"code": 422, "msg": "账号或者密码出错"})
 
 }
 func UserLoginByCaptcha(ctx *gin.Context) {
