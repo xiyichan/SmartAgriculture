@@ -6,34 +6,51 @@ Page({
    */
   data: {
     // 数据源
-    device:[
-      "Java",
-      "C",
-      "C++",
-      "Python",
-      ".NET",
-      "C#",
-      "JavaScript", 
-      "SQL",
-      "PHP",
-      "Java",
-      "C",
-      "C++",
-      "Python",
-      ".NET",
-      "C#",
-      "JavaScript", 
-      "SQL",
-      "PHP",
-      // 更多数据...
-    ]
+    pageSize: "2",
+    pageIndex: "1",
+    device: "",
+    //token:"Bearer "+wx.getStorageSync('token'),
   },
-
+ 
+  waterSwitch(e){
+    var sw = e.detail.value;
+    this.setData({
+      waterSwitch:e.detail.value?"开":"关" 
+    })
+    console.log(sw);
+    console.log(this);
+  },
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  device: function device() {
+    var that = this;
+   var token = "Bearer " + wx.getStorageSync('token');
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/device/pi/user/list',
+      data: {
+        PageSize: that.data.pageSize,
+        PageIndex: that.data.pageIndex,
+      },
 
+      method: "post",
+      header: {
+        "content-type": "application/x-www-form-urlencoded",
+        "Authorization": token
+      },
+      success: function success(res) {
+        var info = res.data;
+        console.log(info);
+        that.setData({
+          device:info.data
+        })
+       
+      }
+    })
+  },
+
+  onLoad: function (options) {
+    this.device();
   },
 
   /**

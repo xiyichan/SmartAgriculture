@@ -5,54 +5,58 @@ Page({
    * 页面的初始数据
    */
   data: {
-    account:"",
-    password:"",
+    account: "2863768433@qq.com",
+    password: "czx987852",
   },
   Account: function Account(e) {
-    this.setData({ account: e.detail.value });
+    this.setData({
+      account: e.detail.value
+    });
   },
   Password: function Password(e) {
-    this.setData({ password: e.detail.value });
+    this.setData({
+      password: e.detail.value
+    });
   },
-  login:function login(){
-    var that=this;
+  login: function login() {
+    var that = this;
     wx.request({
       url: 'http://47.100.108.193:8080/api/user/login/password',
-      data:{
-        Account:that.data.account,  
-        Password:that.data.password
-     },
-     method: "post",
+      data: {
+        Account: that.data.account,
+        Password: that.data.password
+      },
+      method: "post",
       header: {
-          "content-type": "application/x-www-form-urlencoded"
-        },
-        success:function success(res){
-         //  console.log(Account);
-          var info=res.data;
-          console.log(info);
-          if(info.code==200){
-            wx.setStorageSync('token', info.token);
-            wx.setStorageSync('userID', info.data.ID)
-            wx.setStorageSync('avater', info.data.Avatar)
-            wx.setStorageSync('name', info.data.Name)
-            wx.setStorageSync('email', info.data.Email)
-            wx.switchTab({
-              url: "/pages/device/device"
-            });
-          }else{
-            wx.showModal({
-              title: "提示",
-              content: "添加成功"
-            });
-          }
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      success: function success(res) {
+        //  console.log(Account);
+        var info = res.data;
+        console.log(info);
+        if (info.code == 200) {
+          wx.setStorageSync('token', info.token);
+          wx.setStorageSync('userID', info.data.ID)
+          wx.setStorageSync('avater', info.data.Avatar)
+          wx.setStorageSync('name', info.data.Name)
+          wx.setStorageSync('email', info.data.Email)
+          wx.switchTab({
+            url: "/pages/device/device"
+          });
+        } else {
+          wx.showModal({
+            title: "提示",
+            content: "添加成功"
+          });
         }
+      }
     })
   },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    
   },
 
   /**

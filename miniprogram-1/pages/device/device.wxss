@@ -1,4 +1,17 @@
 /* pages/device/device.wxss */
 .device-view{
-  height: 50px;
+  height: auto;
+  margin: 5px;
+  border-color: brown;
+  border-style:solid ;
+}
+.text-property{
+  font-weight: bold;
+  color: cadetblue;
+  width: 50px;
+}
+.switch{
+  font-weight: bold;
+  color: blueviolet;
+  
 }
