@@ -46,7 +46,7 @@ Page({
         } else {
           wx.showModal({
             title: "提示",
-            content: "添加成功"
+            content: info.msg,
           });
         }
       }

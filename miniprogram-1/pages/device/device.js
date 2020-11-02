@@ -13,13 +13,11 @@ Page({
   },
  
   waterSwitch(e){
-    var sw = e.detail.value;
-    this.setData({
-      waterSwitch:e.detail.value?"开":"关" 
-    })
-    console.log(sw);
-    console.log(this);
+
+
+    console.log(e);
   },
+ 
   /**
    * 生命周期函数--监听页面加载
    */

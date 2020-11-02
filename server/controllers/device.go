@@ -123,6 +123,9 @@ func PiQrcode(ctx *gin.Context){
 
 }
 func UserGetPiHistoryData(ctx *gin.Context) {
+	claims,_:=ctx.Get("Claims")
+	ctx.PostForm("IotId")
+	userId:=claims.(*common.Claims).ID
 
 }
 func PiList(ctx *gin.Context) {
