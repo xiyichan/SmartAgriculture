@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include "loginwindow.h"
 #include"ads1115.h"
 extern QString m_strProductKey;
 extern QString m_strDeviceName;
@@ -13,13 +13,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     ui->setupUi(this);
+    m_accessManager=new QNetworkAccessManager(this);
     //qDebug()<<"123123"<<m_strDeviceName;
     ui->pushButton_water->setStyleSheet("background:rgb(0,255,0)");
     ui->pushButton_fan->setStyleSheet("background:rgb(0,255,0)");
     ui->pushButton_light->setStyleSheet("background:rgb(0,255,0)");
-    if(wiringPiSetup()==-1){ ui->pushButton_water->setStyleSheet("background:rgb(255,0,0)");
-        qDebug()<<"setup wiringpi failed";
-    }
+//    if(wiringPiSetup()==-1){
+//        qDebug()<<"setup wiringpi failed";
+//    }
     ads1115Setup(100,0x48);
     startTimer(5000);
     m_client=new QMqttClient(this);
@@ -32,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_strPubTopic = "/sys/" + m_strProductKey + "/" + m_strDeviceName + "/thing/event/property/post";//发布topic
     m_strSubTopic = "/sys/" + m_strProductKey + "/" + m_strDeviceName + "/thing/service/property/set";//订阅topic
     m_strTargetServer = m_strProductKey + ".iot-as-mqtt." + m_strRegionId + ".aliyuncs.com";//域名
-
+   QString testtopic="/"+m_strProductKey + "/" + m_strDeviceName + "/user/bind";//订阅topic
     m_client->setHostname(m_strTargetServer);
     m_client->setPort(1883);
     QString clientId="d5R46fOSfNNwVTNRuSaM";         //表示客户端ID，建议使用设备的MAC地址或SN码，64字符内。
@@ -74,8 +75,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     //订阅
     qDebug()<<m_strSubTopic;
+    //m_client->subscribe(testtopic);
     auto subscription = m_client->subscribe(m_strSubTopic);
     if (subscription) {
+        QMessageBox::critical(this, QLatin1String("Error"), QLatin1String("Could not subscribe. Is there a valid connection?"));
+
+    }
+    qDebug()<<testtopic;
+    //m_client->subscribe(testtopic);
+    auto subscription1 = m_client->subscribe(testtopic);
+    if (subscription1) {
         QMessageBox::critical(this, QLatin1String("Error"), QLatin1String("Could not subscribe. Is there a valid connection?"));
 
     }
@@ -91,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 MainWindow::~MainWindow()
 {
+
     delete ui;
 }
 
@@ -268,6 +278,7 @@ void MainWindow::setLightSwitch(bool s){
     if(s==true){
         pinMode(lightv,OUTPUT);
         digitalWrite(lightv,1);
+
         ui->pushButton_light->setText("light_open");
         ui->pushButton_light->setStyleSheet("background:rgb(255,0,0)");
         light_switch=true;
@@ -299,3 +310,97 @@ void MainWindow::setWaterSwitch(bool s){
 }
 
 
+
+
+
+void MainWindow::on_pushButton_loginout_clicked()
+{
+    QFile file("config.json");
+    if(!file.open(QIODevice::ReadWrite)){
+        qDebug()<<"111";
+    }
+
+    QJsonObject jsonObject;
+    jsonObject.insert("ProductKey",m_strProductKey);
+    jsonObject.insert("DeviceName",m_strDeviceName);
+    jsonObject.insert("DeviceSecret",m_strDeviceSecret);
+    jsonObject.insert("RegionId",m_strRegionId);
+    jsonObject.insert("UserId","");
+
+    QJsonDocument jsonDoc;
+    jsonDoc.setObject(jsonObject);
+    file.write(jsonDoc.toJson());
+    file.close();
+
+ QNetworkRequest *request = new QNetworkRequest();
+    //需要配置文件
+    request->setUrl(QUrl("http://47.100.108.193:8080/api/device/pi/login/out"));
+
+    QByteArray postData;
+    QByteArray responseData;
+    //表单
+
+
+    QString deviceName="DeviceName="+m_strDeviceName+"&";
+    QString deviceSecret="DeviceSecret="+m_strDeviceSecret+"&";
+
+    postData.append(deviceName);
+    postData.append(deviceSecret);
+    //  postData.append("Email=2863768433@qq.com&Password=czx987852");
+
+    QNetworkReply* reply = m_accessManager->post(*request,postData);
+
+    //同步
+    QEventLoop eventLoop;
+    connect(m_accessManager, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+    eventLoop.exec();       //block until finish
+    responseData = reply->readAll();
+    qDebug()<<responseData;
+
+    QJsonParseError json_error;
+    QJsonDocument parse_doucment = QJsonDocument::fromJson(responseData, &json_error);
+qDebug()<<"114";
+    if(json_error.error == QJsonParseError::NoError)
+
+    {
+
+        if(parse_doucment.isObject())
+        {
+
+            QJsonObject obj = parse_doucment.object();
+                QJsonValue code_value = obj.take("code");
+                int code = code_value.toInt();
+                QJsonValue msg_value = obj.take("msg");
+                QString msg=msg_value.toString();
+                qDebug()<<msg;
+            if(code==200){
+               this->close();
+            }
+            else{
+                QMessageBox::information(this,"提示",msg);
+            }
+
+        }
+
+    }
+
+
+//    LoginWindow *w=new LoginWindow;
+//    w->show();
+    //TODO:
+    //you bug  huan hui login windows hui chu xian
+    //wiringPiNewNode: Pin 100 overlaps with existing definition
+    //only rset
+   // this->close();
+}
+void MainWindow::finishedSlot(QNetworkReply *reply)
+{
+    if(reply->error()==QNetworkReply::NoError){
+        QByteArray bytes=reply->readAll();
+        qDebug()<<bytes;
+    }else{
+        qDebug("code : %d",(int)reply->error());
+        qDebug(qPrintable(reply->errorString()));
+    }
+    reply->deleteLater();
+}

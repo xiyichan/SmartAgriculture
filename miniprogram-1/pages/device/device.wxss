@@ -1,8 +1,15 @@
 /* pages/device/device.wxss */
-.device-view{
+.device-view-online{
   height: auto;
   margin: 5px;
   border-color: brown;
+  border-style:solid ;
+}
+.device-view-offline{
+  height: auto;
+  margin: 5px;
+  border-color: brown;
+  background-color: gray;
   border-style:solid ;
 }
 .text-property{

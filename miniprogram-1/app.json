@@ -7,7 +7,8 @@
     "pages/logs/logs",
     "pages/forgetPassword/forgetPassword",
     "pages/register/register",
-    "pages/deviceHistoryData/deviceHistoryData"
+    "pages/deviceHistoryData/deviceHistoryData",
+    "pages/addDevice/addDevice"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -4,6 +4,8 @@
 #include <QWidget>
 #include<QJsonDocument>
 #include<QJsonObject>
+#include<QImage>
+#include<QPainter>
 #include<QJsonValue>
 #include<QJsonParseError>
 #include<QMessageBox>
@@ -12,6 +14,9 @@
 #include<QFile>
 #include<QIODevice>
 #include<QDebug>
+#include<QNetworkReply>
+#include<QtMqtt/qmqttclient.h>
+
 namespace Ui {
 class LoginWindow;
 }
@@ -24,9 +29,16 @@ public:
     explicit LoginWindow(QWidget *parent = nullptr);
     ~LoginWindow();
     QPixmap createQRCode(const QString &text);
-private:
+    QPixmap generateQR(QString strContent ,int width,int height);
 
+private slots:
+
+
+private:
+QMqttClient *m_client;
     Ui::LoginWindow *ui;
+    QNetworkAccessManager *m_accessManager;
+
 };
 
 #endif // LOGINWINDOW_H

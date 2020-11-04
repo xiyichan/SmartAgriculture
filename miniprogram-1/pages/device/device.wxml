@@ -1,32 +1,49 @@
 <!--pages/device/device.wxml-->
 <view style="height:100vh;">
-<scroll-view scroll-y="true" style="height:90vh; " class="box-scroll" >
-  <block wx:for="{{device}}" wx:key="index" >
-    <view class='device-view' >
-     <view>
-      <text class="text-property">IotId:</text>{{item.IotId}}
-     </view>
-    <view >
-      <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
-      <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
-      <switch class="switch" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
-    </view>
-    <view>
-      <text class="text-property">湿度:</text>{{item.Humidity}}
-      <text class="text-property">温度:</text>{{item.Temperature}}
-      <text class="text-property">土壤湿度:</text>{{item.SoilMoisture}}   
-      <text class="text-property">光照强度:</text>{{item.LightIntensity}}
-      <text class="text-property">状态:</text>{{item.Status}}
-    </view>
-    </view> 
+  <scroll-view scroll-y="true" style="height:90vh; " class="box-scroll">
+    <block wx:for="{{device}}" wx:key="index">
+      <view wx:if="{{item.Status==='online'}}">
+        <view class="device-view-online">
+          <view>
+            <text class="text-property">IotId:</text>{{item.IotId}}
+          </view>
+          <view>
+            <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
+            <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
+            <switch class="switch" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
+          </view>
+          <view>
+            <text class="text-property">湿度:</text>{{item.Humidity}}
+            <text class="text-property">温度:</text>{{item.Temperature}}
+            <text class="text-property">土壤湿度:</text>{{item.SoilMoisture}}
+            <text class="text-property">光照强度:</text>{{item.LightIntensity}}
+            <text class="text-property">状态:</text>{{item.Status}}
+          </view>
+        </view>
+      </view>
+      <view wx:else>
+        <view class="device-view-offline" >
+          <view>
+            <text class="text-property">IotId:</text>{{item.IotId}}
+          </view>
+          <view>
+            <switch class="switch" disabled="false" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
+            <switch class="switch" disabled="false" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
+            <switch class="switch" disabled="false" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
+          </view>
+          <view>
+            <text class="text-property">湿度:</text>0
+            <text class="text-property">温度:</text>0
+            <text class="text-property">土壤湿度:</text>0
+            <text class="text-property">光照强度:</text>0
+            <text class="text-property">状态:</text>0
+          </view>
+        </view>
+      </view>
 
-  </block>
-</scroll-view>
-<view style="height 20vh;">
-<button type="primary" bindtap="addDevice">添加设备</button>
+    </block>
+  </scroll-view>
+  <view style="height 20vh;">
+    <button type="primary" bindtap="addDevice">添加设备</button>
+  </view>
 </view>
-</view>
-
-
-
-

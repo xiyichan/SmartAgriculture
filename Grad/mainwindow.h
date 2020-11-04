@@ -17,6 +17,9 @@
 #include<QDebug>
 #include<QString>
 #include<QTimer>
+#include<QNetworkAccessManager>
+#include<QNetworkRequest>
+#include<QNetworkReply>
 #define HIGH_TIME 32
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +39,9 @@ private slots:
     void on_pushButton_fan_clicked();
 
     void on_pushButton_light_clicked();
+
+    void finishedSlot(QNetworkReply *reply);
+    void on_pushButton_loginout_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -75,6 +81,8 @@ private:
     void setFanSwitch(bool s);
     void setWaterSwitch(bool s);
     void setLightSwitch(bool s);
+
+    QNetworkAccessManager *m_accessManager;
 
 };
 #endif // MAINWINDOW_H

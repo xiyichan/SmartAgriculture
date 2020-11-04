@@ -4,6 +4,7 @@
 #include<wiringPi.h>
 #include<QFile>
 #include<QIODevice>
+#include<wiringPi.h>
 #include"loginwindow.h"
 //fan 29
  QString m_strProductKey;
@@ -71,9 +72,15 @@ int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
-
+    if(wiringPiSetup()==-1){
+        qDebug()<<"setup wiringpi failed";
+    }
+//    if(wiringPiSetup()==-1){
+//        qDebug()<<"setup wiringpi failed";
+//    }
 
    init();
+
    qDebug()<<userId;
     if(userId==""){
         qDebug()<<userId;
@@ -82,7 +89,7 @@ int main(int argc, char *argv[])
 
     }
     else{
-        qDebug()<<userId<<"!@#";
+        //qDebug()<<userId<<"!@#";
         MainWindow *w=new MainWindow;
         w->show();
     }

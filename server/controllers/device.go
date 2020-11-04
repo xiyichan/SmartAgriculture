@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/gin-gonic/gin"
@@ -70,11 +71,25 @@ func RegisterPi(ctx *gin.Context) {
 func UserSetPiProperty(ctx *gin.Context) {
 	client := common.GetAliyunIotClient()
 	//powerSwitch:=ctx.PostForm("PowerSwitch")
+
 	waterSwitch := ctx.PostForm("WaterSwitch")
 	fanSwitch := ctx.PostForm("FanSwitch")
 	lightSwitch := ctx.PostForm("lightSwitch")
+	var w,f,l int
+	if waterSwitch=="true"{
+		w=1
+	}
+	if fanSwitch=="true"{
+		f=1
+	}
+	if lightSwitch=="true"{
+		l=1
+	}
 	iotid := ctx.PostForm("IotId")
-	order := fmt.Sprintf("{\"water_switch\":%v,\"fan_switch\":%v,\"light_switch\":%v}", waterSwitch, fanSwitch, lightSwitch)
+	//fmt.Println(waterSwitch)
+	order := fmt.Sprintf("{\"water_switch\":%v,\"fan_switch\":%v,\"light_switch\":%v}", w, f, l)
+	//order:="{\"water_switch\":1}"
+	//fmt.Println(order)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Scheme = "https" // https | http
@@ -94,16 +109,47 @@ func UserSetPiProperty(ctx *gin.Context) {
 func UserBindPi(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
-	iotId := ctx.PostForm("IotId")
-	deviceName:=ctx.PostForm("deviceName")
+	//iotId := ctx.PostForm("IotId")
+	deviceName:=ctx.PostForm("DeviceName")
 	userId := claims.(*common.Claims).ID
-	var pi models.Pi
-	err := db.Model(&pi).Where("iot_id=?", iotId).Or("device_name=?",deviceName).Update("user_id", userId).Error
+	//var pi models.Pi
+	client := common.GetAliyunIotClient()
+
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Scheme = "https" // https | http
+	request.Domain = "iot.cn-shanghai.aliyuncs.com"
+	request.Version = "2018-01-20"
+	request.ApiName = "RRpc"
+	request.QueryParams["RegionId"] = "cn-shanghai"
+	request.QueryParams["DeviceName"] = "d5R46fOSfNNwVTNRuSaM"
+	request.QueryParams["Timeout"] = "5000"
+
+	msg:=base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(userId))))
+	request.QueryParams["RequestBase64Byte"] = msg
+	request.QueryParams["ProductKey"] = "a1I7rPDpEx5"
+
+	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "绑定失败，数据库出错"})
-		return
+		panic(err)
 	}
-	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "绑定成功"})
+	//fmt.Print(response.GetHttpContentString())
+	j := gjson.New(response.GetHttpContentString())
+	rrpcCode:=j.GetString("RrpcCode")
+	fmt.Println(rrpcCode)
+	if rrpcCode=="SUCCESS" {
+		fmt.Println(deviceName)
+		e1:= db.Model(&models.Pi{}).Where("device_name=?", deviceName).Update("user_id", userId).Error
+		if e1!= nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "绑定失败，数据库出错"})
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "绑定成功"})
+
+	}else{
+		ctx.JSON(500, gin.H{"code": 500, "msg": "设备有问题"})
+	}
+	//TODO:tips需要修改
 
 }
 func UserGetPiProperty(ctx *gin.Context) {
@@ -119,13 +165,11 @@ func UserGetPiProperty(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "查询成功", "data": piData})
 }
-func PiQrcode(ctx *gin.Context){
 
-}
 func UserGetPiHistoryData(ctx *gin.Context) {
-	claims,_:=ctx.Get("Claims")
-	ctx.PostForm("IotId")
-	userId:=claims.(*common.Claims).ID
+	//claims,_:=ctx.Get("Claims")
+	//ctx.PostForm("IotId")
+	//userId:=claims.(*common.Claims).ID
 
 }
 func PiList(ctx *gin.Context) {
@@ -159,8 +203,8 @@ func PiList(ctx *gin.Context) {
 func UserPiList(ctx *gin .Context){
 	claims, _ := ctx.Get("Claims")
 	c := claims.(*common.Claims)
-	fmt.Println(c)
-	fmt.Println(c.ID)
+	//fmt.Println(c)
+	//fmt.Println(c.ID)
 	userId:=c.ID
 	db := common.GetDB()
 	pageIndex := ctx.PostForm("PageIndex")
@@ -174,7 +218,7 @@ func UserPiList(ctx *gin .Context){
 	var dto []models.PiData
 
 	var count int64
-	fmt.Println(userId)
+	//fmt.Println(userId)
 	db.Model(&models.Pi{}).Where("user_id=?",userId).Count(&count)
 	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Where("user_id=?",userId).Find(&dto).Error
 	if e != nil {
@@ -220,5 +264,25 @@ func PiDelete(ctx *gin.Context) {
 	} else {
 		ctx.JSON(200, gin.H{"code": 200, "msg": "删除成功"})
 	}
+
+}
+//设备登出
+func PiLoginOut(ctx *gin.Context){
+	db := common.GetDB()
+	//iotId := ctx.PostForm("IotId")
+	deviceName:=ctx.PostForm("DeviceName")
+	deviceSecret:=ctx.PostForm("DeviceSecret")
+	fmt.Println(deviceSecret,deviceSecret)
+
+	e1:= db.Model(&models.Pi{}).Where("device_name=?", deviceName).Where("device_secret=?",deviceSecret).Update("user_id", 0).Error
+	if e1!= nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "解绑失败，数据库出错"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "解绑成功"})
+}
+//用户客户端登出，还需要rrpc
+
+func PiUserLoginOut(ctx *gin.Context){
 
 }
