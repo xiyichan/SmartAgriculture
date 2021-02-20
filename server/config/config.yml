@@ -17,12 +17,11 @@ smtp:
   email: clf2863768433@163.com
   password: qazwsxedc2580
 mongodb:
-  host: 39.106.254.249
+  host: 47.100.108.193
   port: 27017
   username: admin
-  password: 123456
-  logdb: logdb
-  logcollection: log_col
+  password: czx987852
+  logdb: clf
 aliyuniot:
   accessKey: LTAI4FiwZ4r1BZ5cz1kyhuFc
   accessSecret: drErA9WaHJz2S5D728w0HvyvYhBg7d

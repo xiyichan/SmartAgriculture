@@ -195,11 +195,12 @@ func (am *AmqpManager) generateReceiver() error {
 
 func deviceFilter(message string) {
 	db := GetDB()
+	mgocli, _ := GetMongoClient()
 	//fmt.Println(message)
 	j := gjson.New(message)
 	productKey := j.GetString("productKey")
 	iotId := j.GetString("iotId")
-	gmtCreate := j.GetString("gmtCreate")
+	gmtCreate := j.GetInt64("gmtCreate")
 	//items := j.GetString("items")
 	status := j.GetString("status")
 	deviceName := j.GetString("deviceName")
@@ -228,7 +229,14 @@ func deviceFilter(message string) {
 		piname := fmt.Sprintf("%v-%d-pi", year, month)
 		//fmt.Println(piname)
 		//piname:= strconv.Itoa(year)+"-"+ strconv.Itoa(month)+"-pi"
+		//TODO:待删除
 		err := db.Table(piname).Create(&piHistoryData).Error
+		//TODO:记录每一条到mongo
+		tm := time.Unix(gmtCreate, 0)
+		collectionName := "pi" + tm.Format("2006-01-02")
+		collection := mgocli.Database("clf").Collection(collectionName)
+		_, err = collection.InsertOne(context.TODO(), piHistoryData)
+
 		if err != nil {
 			//panic(err)
 			//TODO:应该写入日志

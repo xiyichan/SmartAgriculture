@@ -27,7 +27,6 @@ func init() {
 	common.InitRedis()
 	common.InitSmtp()
 	common.InitMongodb()
-	common.InitLog()
 	common.InitAliyunIot()
 	go common.InitAmqp()
 	// 记录到文件。

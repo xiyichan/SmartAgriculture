@@ -16,7 +16,6 @@ require (
 	github.com/gogf/gf v1.13.7
 	github.com/gorilla/websocket v1.4.2
 	github.com/sirupsen/logrus v1.7.0
-	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/viper v1.7.1
 	go.mongodb.org/mongo-driver v1.4.2
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee
