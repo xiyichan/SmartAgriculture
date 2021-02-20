@@ -26,7 +26,7 @@ func init() {
 	common.InitMysql()
 	common.InitRedis()
 	common.InitSmtp()
-	common.InitMongodb()
+	//	common.InitMongodb()
 	common.InitAliyunIot()
 	go common.InitAmqp()
 	// 记录到文件。
