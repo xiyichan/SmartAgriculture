@@ -13,7 +13,7 @@ type User struct {
 	Pis []Pi `gorm:"foreignKey:UserId"`
 }
 type UserDto struct {
-	ID uint`json:"ID"`
+	ID     uint   `json:"ID"`
 	Name   string `json:"Name"`
 	Phone  string `json:"Phone"`
 	Email  string `json:"Email"`
@@ -22,7 +22,7 @@ type UserDto struct {
 
 func ToUserDto(user User) UserDto {
 	return UserDto{
-		ID: user.ID,
+		ID:     user.ID,
 		Name:   user.Name,
 		Phone:  user.Phone,
 		Email:  user.Email,
