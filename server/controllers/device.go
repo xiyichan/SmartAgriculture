@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/encoding/gjson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"server/common"
 	"server/models"
@@ -75,15 +78,15 @@ func UserSetPiProperty(ctx *gin.Context) {
 	waterSwitch := ctx.PostForm("WaterSwitch")
 	fanSwitch := ctx.PostForm("FanSwitch")
 	lightSwitch := ctx.PostForm("lightSwitch")
-	var w,f,l int
-	if waterSwitch=="true"{
-		w=1
+	var w, f, l int
+	if waterSwitch == "true" {
+		w = 1
 	}
-	if fanSwitch=="true"{
-		f=1
+	if fanSwitch == "true" {
+		f = 1
 	}
-	if lightSwitch=="true"{
-		l=1
+	if lightSwitch == "true" {
+		l = 1
 	}
 	iotid := ctx.PostForm("IotId")
 	//fmt.Println(waterSwitch)
@@ -110,7 +113,7 @@ func UserBindPi(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
 	//iotId := ctx.PostForm("IotId")
-	deviceName:=ctx.PostForm("DeviceName")
+	deviceName := ctx.PostForm("DeviceName")
 	userId := claims.(*common.Claims).ID
 	//var pi models.Pi
 	client := common.GetAliyunIotClient()
@@ -125,7 +128,7 @@ func UserBindPi(ctx *gin.Context) {
 	request.QueryParams["DeviceName"] = "d5R46fOSfNNwVTNRuSaM"
 	request.QueryParams["Timeout"] = "5000"
 
-	msg:=base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(userId))))
+	msg := base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(userId))))
 	request.QueryParams["RequestBase64Byte"] = msg
 	request.QueryParams["ProductKey"] = "a1I7rPDpEx5"
 
@@ -135,18 +138,18 @@ func UserBindPi(ctx *gin.Context) {
 	}
 	//fmt.Print(response.GetHttpContentString())
 	j := gjson.New(response.GetHttpContentString())
-	rrpcCode:=j.GetString("RrpcCode")
+	rrpcCode := j.GetString("RrpcCode")
 	fmt.Println(rrpcCode)
-	if rrpcCode=="SUCCESS" {
+	if rrpcCode == "SUCCESS" {
 		fmt.Println(deviceName)
-		e1:= db.Model(&models.Pi{}).Where("device_name=?", deviceName).Update("user_id", userId).Error
-		if e1!= nil {
+		e1 := db.Model(&models.Pi{}).Where("device_name=?", deviceName).Update("user_id", userId).Error
+		if e1 != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "绑定失败，数据库出错"})
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "绑定成功"})
 
-	}else{
+	} else {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "设备有问题"})
 	}
 	//TODO:tips需要修改
@@ -166,11 +169,34 @@ func UserGetPiProperty(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "查询成功", "data": piData})
 }
 
+//TODO:需要测试
 func UserGetPiHistoryData(ctx *gin.Context) {
 	//claims,_:=ctx.Get("Claims")
-	//ctx.PostForm("IotId")
-	//userId:=claims.(*common.Claims).ID
-
+	iotId := ctx.GetString("IotId")
+	day := ctx.GetString("Day")
+	limit := ctx.GetInt64("Limit")
+	page := ctx.GetInt64("Page")
+	mgoCli, err := common.GetMongoClient()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	collectionName := "pi" + day
+	collection := mgoCli.Database("clf").Collection(collectionName)
+	var opts *options.FindOptions
+	opts = options.Find().SetSort(bson.D{{"time", -1}}).SetLimit(limit).SetSkip((page - 1) * limit)
+	var filter bson.D
+	filter = bson.D{{"iot_id", iotId}}
+	cursor, err := collection.Find(context.TODO(), filter, opts)
+	countOpts := options.Count()
+	total, err := collection.CountDocuments(context.TODO(), filter, countOpts)
+	var list []models.PiHistoryData
+	if err = cursor.All(context.TODO(), &list); err != nil {
+		fmt.Println(err.Error())
+	}
+	result := make(map[string]interface{}, 0)
+	result["list"] = list
+	result["total"] = total
+	ctx.JSON(200, gin.H{"code": 200, "data": list, "msg": "查询成功", "count": total})
 }
 func PiList(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")
@@ -200,12 +226,12 @@ func PiList(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"code": 200, "data": dto, "msg": "查询成功", "count": count})
 	}
 }
-func UserPiList(ctx *gin .Context){
+func UserPiList(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")
 	c := claims.(*common.Claims)
 	//fmt.Println(c)
 	//fmt.Println(c.ID)
-	userId:=c.ID
+	userId := c.ID
 	db := common.GetDB()
 	pageIndex := ctx.PostForm("PageIndex")
 	pageSize := ctx.PostForm("PageSize")
@@ -219,8 +245,8 @@ func UserPiList(ctx *gin .Context){
 
 	var count int64
 	//fmt.Println(userId)
-	db.Model(&models.Pi{}).Where("user_id=?",userId).Count(&count)
-	e := db.Model(&models.Pi{}).Offset((pi - 1) * ps).Limit(ps).Where("user_id=?",userId).Find(&dto).Error
+	db.Model(&models.Pi{}).Where("user_id=?", userId).Count(&count)
+	e := db.Model(&models.Pi{}).Offset((pi-1)*ps).Limit(ps).Where("user_id=?", userId).Find(&dto).Error
 	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "查询失败"})
 	} else {
@@ -266,23 +292,25 @@ func PiDelete(ctx *gin.Context) {
 	}
 
 }
+
 //设备登出
-func PiLoginOut(ctx *gin.Context){
+func PiLoginOut(ctx *gin.Context) {
 	db := common.GetDB()
 	//iotId := ctx.PostForm("IotId")
-	deviceName:=ctx.PostForm("DeviceName")
-	deviceSecret:=ctx.PostForm("DeviceSecret")
-	fmt.Println(deviceSecret,deviceSecret)
+	deviceName := ctx.PostForm("DeviceName")
+	deviceSecret := ctx.PostForm("DeviceSecret")
+	fmt.Println(deviceSecret, deviceSecret)
 
-	e1:= db.Model(&models.Pi{}).Where("device_name=?", deviceName).Where("device_secret=?",deviceSecret).Update("user_id", 0).Error
-	if e1!= nil {
+	e1 := db.Model(&models.Pi{}).Where("device_name=?", deviceName).Where("device_secret=?", deviceSecret).Update("user_id", 0).Error
+	if e1 != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "解绑失败，数据库出错"})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"code": 200, "msg": "解绑成功"})
 }
+
 //用户客户端登出，还需要rrpc
 
-func PiUserLoginOut(ctx *gin.Context){
+func PiUserLoginOut(ctx *gin.Context) {
 
 }
