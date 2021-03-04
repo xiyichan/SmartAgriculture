@@ -125,7 +125,7 @@ func UserBindPi(ctx *gin.Context) {
 	request.Version = "2018-01-20"
 	request.ApiName = "RRpc"
 	request.QueryParams["RegionId"] = "cn-shanghai"
-	request.QueryParams["DeviceName"] = "d5R46fOSfNNwVTNRuSaM"
+	request.QueryParams["DeviceName"] = deviceName
 	request.QueryParams["Timeout"] = "5000"
 
 	msg := base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(userId))))
@@ -310,7 +310,7 @@ func PiLoginOut(ctx *gin.Context) {
 }
 
 //用户客户端登出，还需要rrpc
-
+//从硬件登出
 func PiUserLoginOut(ctx *gin.Context) {
 
 }
