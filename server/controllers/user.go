@@ -104,7 +104,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 			//需要防止暴力破解
 			if count >= 5 {
 				//密码错误五次，冻结账号
-				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
+				err := rdb.HSet(ctx, "user"+strconv.Itoa(int(user.ID)), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -113,7 +113,7 @@ func UserLoginByPassword(ctx *gin.Context) {
 				return
 			} else {
 				//记录密码错误次数
-				err := rdb.HSet(ctx, "user"+string(user.ID), "count", count+1, "time", time.Now().Unix()).Err()
+				err := rdb.HSet(ctx, "user"+strconv.Itoa(int(user.ID)), "count", count+1, "time", time.Now().Unix()).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -142,18 +142,20 @@ func UserLoginByPassword(ctx *gin.Context) {
 			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常，Redis异常"})
 			return
 		}
-		rdb.Del(ctx, "user"+string(user.ID))
-		//rdb.HDel(ctx, "user"+string(user.ID),"count","time")
+		//rdb.Del(ctx, "user"+string(user.ID))
+		//TODO:测试
+		rdb.HDel(ctx, "user"+string(user.ID), "count", "time")
 		//fmt.Println(user.ID)
-		a:=models.ToUserDto(user)
-		a.ID=user.ID
+		a := models.ToUserDto(user)
+		a.ID = user.ID
 		//fmt.Println(a)
 		//userDto:=models.UserDto{
 		//	ID: user.ID,
 		//
 		//
 		//}
-		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data":a})
+		rdb.HSet(ctx, "user"+string(user.ID), "token", token)
+		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": a})
 
 		return
 	}

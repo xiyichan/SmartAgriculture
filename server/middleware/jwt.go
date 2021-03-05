@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/common"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -11,6 +12,7 @@ import (
 //TODO:该问题是如果密码修改之后原本的token依旧能用，若异地登录的话一样改密码也防止不了，使用黑名单或者从数据库查找密码同样都是需要查找数据库。
 func TokenMiddleware(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		rdb := common.GetRedis()
 		tokenString := ctx.GetHeader("Authorization")
 		// validate token formate
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
@@ -48,7 +50,16 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 				return
 			}
 		}
-
+		rDBToken, err := rdb.HGet(ctx, "user"+strconv.Itoa(int(claims.ID)), "token").Result()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": "系统出错"})
+			return
+		}
+		if rDBToken != tokenString {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"code": http.StatusUnauthorized, "msg": "已在别的地方登录"})
+			ctx.Abort()
+			return
+		}
 		ctx.Set("Claims", claims)
 		ctx.Next()
 	}
