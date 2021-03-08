@@ -29,6 +29,7 @@
 [GIN-debug] POST   /api/device/pi/list       --> server/controllers.PiList (5 handlers)
 [GIN-debug] POST   /api/device/pi/delete     --> server/controllers.PiDelete (5 handlers)
 [GIN-debug] POST   /api/device/pi/user/login/out --> server/controllers.PiUserLoginOut (5 handlers)
+[GIN-debug] GET    /api/device/pi/get/history --> server/controllers.UserGetPiHistoryData (5 handlers)
 [GIN-debug] POST   /api/device/pi/login/out  --> server/controllers.PiLoginOut (4 handlers)
 [GIN-debug] GET    /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
 [GIN-debug] HEAD   /public/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)

@@ -10,12 +10,18 @@ type Admin struct {
 	Password string `gorm:"DEFAULT:NULL"`
 	Avatar   string `gorm:"DEFAULT:NULL"`
 }
-type AdminDto struct {
-	Name     string `json:"Name"`
-	Phone    string `json:"Phone"`
-	Email    string `json:"Email"`
-	Avatar   string `json:"Avatar"`
+
+func (a Admin) TableName() string {
+	return "admin"
 }
+
+type AdminDto struct {
+	Name   string `json:"Name"`
+	Phone  string `json:"Phone"`
+	Email  string `json:"Email"`
+	Avatar string `json:"Avatar"`
+}
+
 func ToAdminDto(admin Admin) AdminDto {
 	return AdminDto{
 		Name:   admin.Name,

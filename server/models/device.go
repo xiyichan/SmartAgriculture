@@ -22,6 +22,10 @@ type Pi struct {
 	UserId         uint `gorm:"foreignKey:UserId"`
 }
 
+func (a Pi) TableName() string {
+	return "pi"
+}
+
 type PiListData struct {
 	DeviceName   string
 	DeviceSecret string

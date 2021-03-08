@@ -12,6 +12,11 @@ type User struct {
 
 	Pis []Pi `gorm:"foreignKey:UserId"`
 }
+
+func (a User) TableName() string {
+	return "user"
+}
+
 type UserDto struct {
 	ID     uint   `json:"ID"`
 	Name   string `json:"Name"`
