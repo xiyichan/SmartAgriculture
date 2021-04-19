@@ -13,6 +13,7 @@ import (
 //TODO:该问题是如果密码修改之后原本的token依旧能用，若异地登录的话一样改密码也防止不了，使用黑名单或者从数据库查找密码同样都是需要查找数据库。
 func TokenMiddleware(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		var err error
 		rdb := common.GetRedis()
 		tokenString := ctx.GetHeader("Authorization")
 		fmt.Println("----------------------", tokenString)
@@ -36,8 +37,9 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+		var allow bool
 		if len(roles) > 0 {
-			allow := false
+			allow = false
 			for _, role := range roles {
 				if claims.Role == role {
 					allow = true
@@ -52,9 +54,16 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 				return
 			}
 		}
-		rDBToken, err := rdb.HGet(ctx, "user"+strconv.Itoa(int(claims.ID)), "token").Result()
+		var rDBToken string
+		if claims.Role == "admin" {
+			rDBToken, err = rdb.HGet(ctx, "admin"+strconv.Itoa(int(claims.ID)), "token").Result()
+		} else {
+			rDBToken, err = rdb.HGet(ctx, "user"+strconv.Itoa(int(claims.ID)), "token").Result()
+		}
+
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": "系统出错"})
+			fmt.Println(err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": "redis系统出错"})
 			return
 		}
 		if rDBToken != tokenString {
@@ -63,7 +72,7 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 			return
 		}
 		ctx.Set("Claims", claims)
-		fmt.Println(claims)
+		fmt.Println("11111111111111,", claims)
 		ctx.Next()
 	}
 }

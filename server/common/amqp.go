@@ -232,7 +232,9 @@ func deviceFilter(message string) {
 		//TODO:待删除
 		err := db.Table(piname).Create(&piHistoryData).Error
 		//TODO:记录每一条到mongo
+		fmt.Println(gmtCreate)
 		tm := time.Unix(gmtCreate, 0)
+		fmt.Println("-----11", tm, tm.Format("2006-01-02"))
 		collectionName := "pi" + tm.Format("2006-01-02")
 		collection := mgocli.Database("clf").Collection(collectionName)
 		_, err = collection.InsertOne(context.TODO(), piHistoryData)
@@ -253,7 +255,7 @@ func deviceFilter(message string) {
 			LightSwitch:    &lightSwitch,
 			WaterSwitch:    &waterSwitch,
 		}
-		//fmt.Println(pi.Status)
+		fmt.Println(pi)
 		e := db.Model(&models.Pi{}).Where("device_name=?", deviceName).Updates(pi).Error
 		//model.不写0值
 		//e:=db.Exec("update pis set status =? where iot_id=?",status,iotId).Error

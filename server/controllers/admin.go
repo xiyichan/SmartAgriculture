@@ -28,7 +28,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			ctx.JSON(422, gin.H{"code": 422, "msg": "该账号不存在"})
 			return
 		}
-		count, _ := rdb.HGet(ctx, "admin"+string(admin.ID), "count").Int()
+		count, _ := rdb.HGet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count").Int()
 		if count >= 5 {
 			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
 			return
@@ -38,7 +38,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			//需要防止暴力破解
 			if count >= 5 {
 				//密码错误五次，冻结账号
-				err := rdb.HSet(ctx, "admin"+string(admin.ID), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
+				err := rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -47,7 +47,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 				return
 			} else {
 				//记录密码错误次数
-				err := rdb.HSet(ctx, "admin"+string(admin.ID), "count", count+1, "time", time.Now().Unix()).Err()
+				err := rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", count+1, "time", time.Now().Unix()).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -75,8 +75,9 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常，Redis异常"})
 			return
 		}
-		rdb.Del(ctx, "admin"+string(admin.ID))
-		//rdb.HDel(ctx, "admin"+string(admin.ID),"count","time")
+		//rdb.Del(ctx, "admin"+strconv.Itoa(int(admin.ID)))
+		rdb.HDel(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", "time")
+		rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "token", token)
 		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToAdminDto(admin)})
 		return
 	}
@@ -89,7 +90,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			ctx.JSON(422, gin.H{"code": 422, "msg": "该账号不存在"})
 			return
 		}
-		count, _ := rdb.HGet(ctx, "admin"+string(admin.ID), "count").Int()
+		count, _ := rdb.HGet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count").Int()
 		if count >= 5 {
 			ctx.JSON(400, gin.H{"code": 400, "msg": "密码错误5次，账号冻结，请使用找回密码重置密码"})
 			return
@@ -99,7 +100,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			//需要防止暴力破解
 			if count >= 5 {
 				//密码错误五次，冻结账号
-				err := rdb.HSet(ctx, "admin"+string(admin.ID), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
+				err := rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", count+1, "time", time.Now().Unix()+int64((count-4)*60)).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -108,7 +109,7 @@ func AdminLoginByPassword(ctx *gin.Context) {
 				return
 			} else {
 				//记录密码错误次数
-				err := rdb.HSet(ctx, "admin"+string(admin.ID), "count", count+1, "time", time.Now().Unix()).Err()
+				err := rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", count+1, "time", time.Now().Unix()).Err()
 				if err != nil {
 					ctx.JSON(500, gin.H{"code": 500, "msg": "系统错误,Redis异常"})
 					return
@@ -135,8 +136,9 @@ func AdminLoginByPassword(ctx *gin.Context) {
 			ctx.JSON(500, gin.H{"code": 500, "msg": "系统异常，Redis异常"})
 			return
 		}
-		//rdb.HDel(ctx, "admin"+string(admin.ID),"count","time")
-		rdb.Del(ctx, "admin"+string(admin.ID))
+		//rdb.HDel(ctx, "admin"+strconv.Itoa(int(admin.ID)),"count","time")
+		rdb.Del(ctx, "admin"+strconv.Itoa(int(admin.ID)), "count", "time")
+		rdb.HSet(ctx, "admin"+strconv.Itoa(int(admin.ID)), "token", token)
 		ctx.JSON(200, gin.H{"code": 200, "msg": "登录成功", "token": token, "data": models.ToAdminDto(admin)})
 		return
 	}
@@ -291,7 +293,7 @@ func AdminInfo(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
 		return
 	}
-	ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功", "data": models.ToAdminDto(admin)})
+	ctx.JSON(200, gin.H{"code": 200, "msg": "获取成功", "data": models.ToAdminDto(admin)})
 }
 func AdminList(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")
