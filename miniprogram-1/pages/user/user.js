@@ -6,7 +6,8 @@ Page({
    */
   data: {
     user: "",
-    userimg: '',
+    userimg: "",
+    hiddenNameFlag: false
   },
 
   userInfo: function userInfo() {
@@ -23,22 +24,17 @@ Page({
         var info = res.data;
         console.log(info);
         that.setData({
-          user: info.data
+          user: info.data,
+          userimg: 'http://47.100.108.193:8080/' + info.data.Avatar
         })
       }
     })
   },
-  /**
-   * 生命周期函数--监听页面加载
-   */
   upShopLogo: function () {
     var that = this;
-
     wx.showActionSheet({
       itemList: ['从相册中选择', '拍照'],
-
       itemColor: "#f7982a",
-
       success: function (res) {
         if (!res.cancel) {
           if (res.tapIndex == 0) {
@@ -56,71 +52,193 @@ Page({
     })
 
   },
+  upUserInfo: function () {
+    var that = this;
+    var token = "Bearer " + wx.getStorageSync('token');
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/user/updata/name',
+      data: {
+
+      }
+    })
+  },
+  updataName: function (name) {
+    var that = this;
+    var token = "Bearer " + wx.getStorageSync('token');
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/user/update/name',
+      data: {
+        Name: name
+      },
+      method: "post",
+      header: {
+        "content-type": "application/x-www-form-urlencoded",
+        "Authorization": token
+      },
+      success: function success(asd) {
+        var info = asd.data;
+        console.log(info);
+        if (info.code == 200) {
+          wx.showToast({
+            title: '成功',
+            duration: 1000
+          })
+        } else {
+          wx.showToast({
+            title: '失败',
+            duration: 1000
+          })
+        }
+      }
+    })
+
+  },
+  showNameWindows: function () {
+    var that = this;
+    wx.showModal({
+      title: "输入新名字",
+      content: '请输入',
+      editable: true,
+      placeholderText: '数量',
+      success(res) {
+        if (res.confirm) {
+          console.log('用户点击确定', res.content);
+          if (res.content!=""){
+            that.updataName(res.content);
+            that.userInfo();
+          }else{
+            wx.showToast({
+              title: '用户名为空',
+            })
+          }
+        } else if (res.cancel) {
+          console.log('用户点击取消');
+        }
+      }
+    })
+  },
+  showPasswordWindows:function(){
+    // wx.navigateTo({
+    //   url: "/pages/login/login"
+    // })
+     
+    
+    var that = this;
+    wx.showModal({
+      title: "输入新密码",
+      content: '请输入',
+      editable: true,
+      placeholderText: '数量',
+      //password:ture,
+      success(res) {
+        if (res.confirm) {
+          console.log('用户点击确定', res.content);
+          if (res.content!=""){
+            that.updatePassword(res.content);
+            wx.navigateTo({
+              url: "/pages/login/login"
+            })
+           // that.userInfo();
+          }else{
+            wx.showToast({
+              title: '密码为空',
+            })
+          }
+        } else if (res.cancel) {
+          console.log('用户点击取消');
+        }
+      }
+    })
+  },
+ 
+  updatePassword: function (newPassword) {
+    var that = this;
+    var token = "Bearer " + wx.getStorageSync('token');
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/user/update/password',
+      data: {
+        Password: newPassword
+      },
+      method: "post",
+      header: {
+        "content-type": "application/x-www-form-urlencoded",
+        "Authorization": token
+      },
+      success: function success(asd) {
+        var info = asd.data;
+        console.log(info);
+        if (info.code == 200) {
+          wx.showToast({
+            title: '成功',
+            duration: 1000
+          })
+        } else {
+          wx.showToast({
+            title: '失败',
+            duration: 1000
+          })
+        }
+      }
+    })
+
+  },
   chooseWxImageShop: function (type) {
     var that = this;
-
+    var img;
     wx.chooseImage({
       sizeType: ['original', 'compressed'],
 
       sourceType: [type],
 
       success: function (res) {
-        that.data.userimg = res.tempFilePaths[0],
 
-          that.upload_file(urldate.upimg + 'shop/shopIcon', res.tempFilePaths[0])
+        img = res.tempFilePaths[0],
 
-        userimg = res.tempFilePaths[0];
+          that.upload_file('http://47.100.108.193:8080/api/user/upload/avatar' + 'shop/shopIcon', res.tempFilePaths[0])
+
+        img = res.tempFilePaths[0];
 
         that.setData({
-          userimg: userimg
+          userimg: img
 
         })
 
       }
 
     })
-
+    console.log(data.userimg)
   },
   upload_file: function (url, filePath) {
     var that = this;
-
-    var signature = signa.signaturetik('token=' + token, 'userAccessToken=' + userAccessToken, 'studentAccessToken=' + studentAccessToken);
-
+    var token = "Bearer " + wx.getStorageSync('token');
+    console.log(filePath)
     wx.uploadFile({
-      url: urldate.upimg, //后台处理接口
-
+      url: 'http://47.100.108.193:8080/api/user/upload/avatar', //后台处理接口
       filePath: filePath,
-
-      name: 'file',
-
+      name: 'Avatar',
       header: {
-        'content-type': 'multipart/form-data'
-
+        "Authorization": token
       }, // 设置请求的 header
 
-      formData: { //需要的参数
-
-        'token': token,
-
-        'signature': signature,
-
-        'userAccessToken': userAccessToken,
-
-        'studentAccessToken': studentAccessToken
-
-      }, // HTTP 请求中其他额外的 form data
+      // formData: {//需要的参数
+      //   Avatar:filePath
+      // }, // HTTP 请求中其他额外的 form data
 
       success: function (res) {
+        console.log(res.data)
         var data = JSON.parse(res.data);
-
-
-
         that.setData({
-          userimg: data.path,
+          //userimg: data.path,
 
         });
-
-        that.showMessage('上传成功');
+        that.userInfo();
+        wx.showToast({
+          title: "成功", // 提示的内容
+          icon: "success", // 图标，默认success
+          image: "", // 自定义图标的本地路径，image 的优先级高于 icon
+          duration: 3000, // 提示的延迟时间，默认1500
+          mask: false, // 是否显示透明蒙层，防止触摸穿透
+        })
 
       },
 
@@ -129,6 +247,13 @@ Page({
     })
 
   },
+
+
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+
 
   onLoad: function (options) {
     var that = this;
