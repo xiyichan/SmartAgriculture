@@ -1,11 +1,9 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/common"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -14,7 +12,7 @@ import (
 func TokenMiddleware(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var err error
-		rdb := common.GetRedis()
+		//	rdb := common.GetRedis()
 		tokenString := ctx.GetHeader("Authorization")
 		//fmt.Println("----------------------", tokenString)
 		// validate token formate
@@ -54,23 +52,23 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 				return
 			}
 		}
-		var rDBToken string
-		if claims.Role == "admin" {
-			rDBToken, err = rdb.HGet(ctx, "admin"+strconv.Itoa(int(claims.ID)), "token").Result()
-		} else {
-			rDBToken, err = rdb.HGet(ctx, "user"+strconv.Itoa(int(claims.ID)), "token").Result()
-		}
-
-		if err != nil {
-			fmt.Println(err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": "redis系统出错"})
-			return
-		}
-		if rDBToken != tokenString {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"code": http.StatusUnauthorized, "msg": "已在别的地方登录"})
-			ctx.Abort()
-			return
-		}
+		//var rDBToken string
+		//if claims.Role == "admin" {
+		//	rDBToken, err = rdb.HGet(ctx, "admin"+strconv.Itoa(int(claims.ID)), "token").Result()
+		//} else {
+		//	rDBToken, err = rdb.HGet(ctx, "user"+strconv.Itoa(int(claims.ID)), "token").Result()
+		//}
+		//
+		//if err != nil {
+		//	fmt.Println(err)
+		//	ctx.JSON(http.StatusInternalServerError, gin.H{"code": http.StatusInternalServerError, "msg": "redis系统出错"})
+		//	return
+		//}
+		//if rDBToken != tokenString {
+		//	ctx.JSON(http.StatusUnauthorized, gin.H{"code": http.StatusUnauthorized, "msg": "已在别的地方登录"})
+		//	ctx.Abort()
+		//	return
+		//}
 		ctx.Set("Claims", claims)
 
 		ctx.Next()

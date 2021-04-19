@@ -1,2 +1,18 @@
 <!--pages/user/user.wxml-->
-<text>pages/user/user.wxml</text>
+<view class='head_img' bindtap='upShopLogo'>
+
+<text>头像</text>
+
+<view class='img'><image src='{{userimg}}'></image></view>
+
+</view>
+
+<view>
+<text class="text-property">名字：{{user.Name}}</text>
+</view>
+<view>
+<text class="text-property">邮箱：{{user.Email}}</text>
+</view>
+<view>
+<text class="text-property">电话：{{user.Phone}}</text>
+</view>
