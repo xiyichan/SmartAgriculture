@@ -172,10 +172,14 @@ func UserGetPiProperty(ctx *gin.Context) {
 //TODO:需要测试
 func UserGetPiHistoryData(ctx *gin.Context) {
 	//claims,_:=ctx.Get("Claims")
-	iotId := ctx.GetString("IotId")
-	day := ctx.GetString("Day")
-	limit := ctx.GetInt64("Limit")
-	page := ctx.GetInt64("Page")
+	iotId := ctx.Query("IotId")
+	day := ctx.Query("Day")
+	limitStr := ctx.Query("Limit")
+	pageStr := ctx.Query("Page")
+
+	limit, _ := strconv.Atoi(limitStr)
+	page, _ := strconv.Atoi(pageStr)
+	fmt.Println(iotId, day, limit, page)
 	mgoCli, err := common.GetMongoClient()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -183,7 +187,7 @@ func UserGetPiHistoryData(ctx *gin.Context) {
 	collectionName := "pi" + day
 	collection := mgoCli.Database("clf").Collection(collectionName)
 	var opts *options.FindOptions
-	opts = options.Find().SetSort(bson.D{{"time", -1}}).SetLimit(limit).SetSkip((page - 1) * limit)
+	opts = options.Find().SetSort(bson.D{{"time", -1}}).SetLimit(int64(limit)).SetSkip(int64((page - 1) * limit))
 	var filter bson.D
 	filter = bson.D{{"iot_id", iotId}}
 	cursor, err := collection.Find(context.TODO(), filter, opts)

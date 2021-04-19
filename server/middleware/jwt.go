@@ -16,7 +16,7 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 		var err error
 		rdb := common.GetRedis()
 		tokenString := ctx.GetHeader("Authorization")
-		fmt.Println("----------------------", tokenString)
+		//fmt.Println("----------------------", tokenString)
 		// validate token formate
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
@@ -72,7 +72,7 @@ func TokenMiddleware(roles ...string) gin.HandlerFunc {
 			return
 		}
 		ctx.Set("Claims", claims)
-		fmt.Println("11111111111111,", claims)
+
 		ctx.Next()
 	}
 }
