@@ -201,6 +201,7 @@ func AdminAddByEmail(ctx *gin.Context) {
 func AdminUploadAvatar(ctx *gin.Context) {
 	db := common.GetDB()
 	claims, _ := ctx.Get("Claims")
+	fmt.Println(claims)
 	if claims.(*common.Claims).Role != "admin" {
 		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
 		return
@@ -231,7 +232,7 @@ func AdminUploadAvatar(ctx *gin.Context) {
 	}
 	err := db.Model(&u).Update("avatar", path+avatar.Filename)
 	if err != nil {
-		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功","avatar":path+avatar.Filename})
+		ctx.JSON(200, gin.H{"code": 200, "msg": "上传成功", "avatar": path + avatar.Filename})
 	} else {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "系统出错"})
 	}
@@ -245,16 +246,16 @@ func AdminUpdatePassword(ctx *gin.Context) {
 		return
 	}
 	db := common.GetDB()
-	password:=ctx.PostForm("Password")
+	password := ctx.PostForm("Password")
 	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	e:=db.Model(&models.Admin{}).Where("id=?",claims.(*common.Claims).ID).Update("password",string(hashPassword)).Error
-	if  e != nil {
+	e := db.Model(&models.Admin{}).Where("id=?", claims.(*common.Claims).ID).Update("password", string(hashPassword)).Error
+	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
 		return
 	}
-	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功"})
+	ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功"})
 }
-func AdminUpdateName(ctx *gin.Context){
+func AdminUpdateName(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")
 	//fmt.Println(claims.(common.Claims).Role)
 	if claims.(*common.Claims).Role != "admin" {
@@ -262,30 +263,35 @@ func AdminUpdateName(ctx *gin.Context){
 		return
 	}
 	db := common.GetDB()
-	name:=ctx.PostForm("Name")
+	name := ctx.PostForm("Name")
 
-	e:=db.Model(&models.Admin{}).Where("id=?",claims.(*common.Claims).ID).Update("name",name).Error
-	if  e != nil {
+	e := db.Model(&models.Admin{}).Where("id=?", claims.(*common.Claims).ID).Update("name", name).Error
+	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
 		return
 	}
-	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功"})
+	ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功"})
 }
-func AdminInfo(ctx *gin.Context){
+func AdminInfo(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")
 	//fmt.Println(claims.(common.Claims).Role)
+	if claims == nil {
+		fmt.Println()
+		ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功", "data": "空"})
+	}
+
 	if claims.(*common.Claims).Role != "admin" {
 		ctx.JSON(422, gin.H{"code": 200, "msg": "权限不足"})
 		return
 	}
-	db:=common.GetDB()
+	db := common.GetDB()
 	var admin models.Admin
-	e:=db.First(&admin).Where("id=?",claims.(*common.Claims).ID).Error
-	if  e != nil {
+	e := db.First(&admin).Where("id=?", claims.(*common.Claims).ID).Error
+	if e != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "数据库出错"})
 		return
 	}
-	ctx.JSON(200,gin.H{"code":200,"msg":"修改成功","data":models.ToAdminDto(admin)})
+	ctx.JSON(200, gin.H{"code": 200, "msg": "修改成功", "data": models.ToAdminDto(admin)})
 }
 func AdminList(ctx *gin.Context) {
 	claims, _ := ctx.Get("Claims")

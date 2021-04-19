@@ -53,8 +53,5 @@ func main() {
 		panic(r.Run(":" + port))
 	}
 	panic(r.Run())
-	r.Run(":" + port)
-
-	//
 
 }
