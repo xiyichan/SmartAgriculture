@@ -6,7 +6,7 @@ Page({
    */
   data: {
     account: "2863768433@qq.com",
-    password: "czx987852",
+    password: "123456",
   },
   Account: function Account(e) {
     this.setData({

@@ -13,21 +13,21 @@ Page({
     device: "",
     //token:"Bearer "+wx.getStorageSync('token'),
   },
- 
-  waterSwitch(e){
-    var id=e.currentTarget.id;
-   // var that=this;
-    this.data.device[id].WaterSwitch=e.detail.value;
-    var token="Bearer " + wx.getStorageSync('token');
+
+  waterSwitch(e) {
+    var id = e.currentTarget.id;
+    // var that=this;
+    this.data.device[id].WaterSwitch = e.detail.value;
+    var token = "Bearer " + wx.getStorageSync('token');
     wx.request({
       url: 'http://47.100.108.193:8080/api/device/pi/set/property',
-      data:{
-        IotId:this.data.device[id].IotId,
-        WaterSwitch:this.data.device[id].WaterSwitch,
-       FanSwitch:this.data.device[id].FanSwitch,
-        lightSwitch:this.data.device[id].LightSwitch,
+      data: {
+        IotId: this.data.device[id].IotId,
+        WaterSwitch: this.data.device[id].WaterSwitch,
+        FanSwitch: this.data.device[id].FanSwitch,
+        lightSwitch: this.data.device[id].LightSwitch,
       },
-      method:"post",
+      method: "post",
       header: {
         "content-type": "application/x-www-form-urlencoded",
         "Authorization": token
@@ -35,26 +35,26 @@ Page({
       success: function success(res) {
         var info = res.data;
         console.log(info);
-      
+
       }
     })
     //console.log( that.data.device[id]);
     console.log(e);
   },
-  lightSwitch(e){
-    var id=e.currentTarget.id;
-    var that=this;
-    this.data.device[id].LightSwitch=e.detail.value;
-    var token="Bearer " + wx.getStorageSync('token');
+  lightSwitch(e) {
+    var id = e.currentTarget.id;
+    var that = this;
+    this.data.device[id].LightSwitch = e.detail.value;
+    var token = "Bearer " + wx.getStorageSync('token');
     wx.request({
       url: 'http://47.100.108.193:8080/api/device/pi/set/property',
-      data:{
-        IotId:this.data.device[id].IotId,
-        WaterSwitch:this.data.device[id].WaterSwitch,
-        FanSwitch:this.data.device[id].FanSwitch,
-        lightSwitch:this.data.device[id].LightSwitch,
+      data: {
+        IotId: this.data.device[id].IotId,
+        WaterSwitch: this.data.device[id].WaterSwitch,
+        FanSwitch: this.data.device[id].FanSwitch,
+        lightSwitch: this.data.device[id].LightSwitch,
       },
-      method:"post",
+      method: "post",
       header: {
         "content-type": "application/x-www-form-urlencoded",
         "Authorization": token
@@ -62,26 +62,26 @@ Page({
       success: function success(res) {
         var info = res.data;
         console.log(info);
-      
+
       }
     })
-    console.log( that.data.device[id]);
+    console.log(that.data.device[id]);
     console.log(e);
   },
-  fanSwitch(e){
-    var id=e.currentTarget.id;
-    var that=this;
-    this.data.device[id].FanSwitch=e.detail.value;
-    var token="Bearer " + wx.getStorageSync('token');
+  fanSwitch(e) {
+    var id = e.currentTarget.id;
+    var that = this;
+    this.data.device[id].FanSwitch = e.detail.value;
+    var token = "Bearer " + wx.getStorageSync('token');
     wx.request({
       url: 'http://47.100.108.193:8080/api/device/pi/set/property',
-      data:{
-        IotId:this.data.device[id].IotId,
-        WaterSwitch:this.data.device[id].WaterSwitch,
-        FanSwitch:this.data.device[id].FanSwitch,
-        lightSwitch:this.data.device[id].LightSwitch,
+      data: {
+        IotId: this.data.device[id].IotId,
+        WaterSwitch: this.data.device[id].WaterSwitch,
+        FanSwitch: this.data.device[id].FanSwitch,
+        lightSwitch: this.data.device[id].LightSwitch,
       },
-      method:"post",
+      method: "post",
       header: {
         "content-type": "application/x-www-form-urlencoded",
         "Authorization": token
@@ -89,13 +89,13 @@ Page({
       success: function success(res) {
         var info = res.data;
         console.log(info);
-      
+
       }
     })
-    console.log( that.data.device[id]);
+    console.log(that.data.device[id]);
     console.log(e);
   },
-  addDevice:function addDevice(){
+  addDevice: function addDevice() {
     var that = this;
     var token = "Bearer " + wx.getStorageSync('token');
     wx.scanCode({ //扫描API
@@ -106,10 +106,10 @@ Page({
         });
         wx.request({
           url: 'http://47.100.108.193:8080/api/device/pi/bind/user',
-          data:{
-            DeviceName:res.result,
+          data: {
+            DeviceName: res.result,
           },
-          method:"post",
+          method: "post",
           header: {
             "content-type": "application/x-www-form-urlencoded",
             "Authorization": token
@@ -124,9 +124,9 @@ Page({
           title: '成功',
           duration: 1000
         })
-       
+
       }
-     
+
     })
     that.deviceList();
   },
@@ -135,7 +135,7 @@ Page({
    */
   deviceList: function deviceList() {
     var that = this;
-   var token = "Bearer " + wx.getStorageSync('token');
+    var token = "Bearer " + wx.getStorageSync('token');
     wx.request({
       url: 'http://47.100.108.193:8080/api/device/pi/user/list',
       data: {
@@ -152,26 +152,33 @@ Page({
         var info = res.data;
         console.log(info);
         that.setData({
-          device:info.data
+          device: info.data
         })
-       
+
       }
     })
   },
 
+  historyData:function(event){
+    var that=this
+    console.log(event.currentTarget)
+    wx.navigateTo({
+      url: '/pages/deviceHistoryData/deviceHistoryData?IotId=1',
+    })
+  },
   onLoad: function (options) {
-var that=this;
+    var that = this;
     this.deviceList();
-        setInterval(function(){
-     that.deviceList();
-    },10000);
+    setInterval(function () {
+      that.deviceList();
+    }, 10000);
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-   
+
   },
 
   /**

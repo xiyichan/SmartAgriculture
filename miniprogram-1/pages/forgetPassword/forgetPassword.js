@@ -63,7 +63,6 @@ Page({
         Email:that.data.email,
         Password:that.data.password,
         Captcha:that.data.captcha,
-        Name:that.data.name
       },
       method: "post",
       header: {

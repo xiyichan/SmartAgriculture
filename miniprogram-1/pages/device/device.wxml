@@ -2,11 +2,11 @@
 <view style="height:100vh;">
   <scroll-view scroll-y="true" style="height:90vh; " class="box-scroll">
     <block wx:for="{{device}}" wx:key="index">
-      <view wx:if="{{item.Status==='online'}}">
-        <view class="device-view-online">
+      <view wx:if="{{item.Status==='online'}}" >
+        <view class="device-view-online" bindtap="historyData">
           <view>
             <text class="text-property">IotId:</text>{{item.IotId}}
-          </view>
+          </view> 
           <view>
             <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
             <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
@@ -22,7 +22,7 @@
         </view>
       </view>
       <view wx:else>
-        <view class="device-view-offline" >
+        <view class="device-view-offline" bindtap="historyData">
           <view>
             <text class="text-property">IotId:</text>{{item.IotId}}
           </view>
