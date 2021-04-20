@@ -30,11 +30,10 @@ Axios.interceptors.request.use(
 //返回状态判断 拦截器
 Axios.interceptors.response.use(
     res => {
-        console.log(res)
         if (res.code == "401") {
             localStorage.removeItem("token");
             this.$router.replace("/");
-             console.log(res)
+            // console.log("报错401")
         }
         if (res.data && res.status != "200") {
             return Promise.reject(res);
@@ -42,19 +41,11 @@ Axios.interceptors.response.use(
         console.log(res);
         return res;
     },
-    error => {
-                //404等问题可以在这里处理
-                console.log(error)
-                if (error.response) {
-                    switch (error.response.status) {
-                      case 401:
-                        // 返回 401 清除token信息并跳转到登录页面
-                        localStorage.removeItem("token");
-                        this.$router.replace("/");
-                    }
-                }
-                return Promise.reject(error);
-            }
+    error => {
+        //404等问题可以在这里处理
+
+        return Promise.reject(error);
+    }
 );
 //进行封装处理
 const request = (url, method, params) => {

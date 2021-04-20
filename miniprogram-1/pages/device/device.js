@@ -158,12 +158,17 @@ Page({
       }
     })
   },
-
-  historyData:function(event){
+  item:function(e){
     var that=this
-    console.log(event.currentTarget)
+    console.log(e.currentTarget.value)
+  },
+
+  historyData:function(e){
+    var that=this
+    console.log(that.data.device)
+    console.log(e.currentTarget.dataset.alphaBeta)
     wx.navigateTo({
-      url: '/pages/deviceHistoryData/deviceHistoryData?IotId=1',
+      url: '/pages/deviceHistoryData/deviceHistoryData?IotId='+e.currentTarget.dataset.alphaBeta,
     })
   },
   onLoad: function (options) {

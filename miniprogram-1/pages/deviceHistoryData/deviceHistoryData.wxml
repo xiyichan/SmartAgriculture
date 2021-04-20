@@ -1,2 +1,55 @@
-<!--pages/deviceHistoryData/deviceHistoryData.wxml-->
-<text>pages/deviceHistoryData/deviceHistoryData.wxml</text>
+<!-- <view class="tui-picker-content">
+  <view class="tui-picker-name">时间选择器（选择时分）</view>
+  <picker mode="time" value="{{time}}" start="09:00" end="17:30" bindchange="changeTime">
+    <view class="tui-picker-detail">
+      午饭时间: {{time}}
+    </view>
+  </picker>
+</view> -->
+
+<view class="tui-picker-content">
+  <!-- <view class="tui-picker-name">日期选择器（选择年月日）</view> -->
+  <picker mode="date" value="{{date}}" bindchange="changeDate">
+    <view class="tui-picker-detail">
+      选择日期: {{date}}
+    </view>
+  </picker>
+</view>
+
+<!-- <view class="tui-picker-content">
+  <view class="tui-picker-name">日期时间选择器（精确到秒）</view>
+  <picker mode="multiSelector" value="{{dateTime}}" bindchange="changeDateTime" bindcolumnchange="changeDateTimeColumn" range="{{dateTimeArray}}">
+    <view class="tui-picker-detail">
+      选择日期时间: {{dateTimeArray[0][dateTime[0]]}}-{{dateTimeArray[1][dateTime[1]]}}-{{dateTimeArray[2][dateTime[2]]}} {{dateTimeArray[3][dateTime[3]]}}:{{dateTimeArray[4][dateTime[4]]}}:{{dateTimeArray[5][dateTime[5]]}}
+    </view>
+  </picker>
+</view> -->
+<!-- <view class="tui-picker-content">
+  <view class="tui-picker-name">日期时间选择器（精确到分）</view>
+  <picker mode="multiSelector" value="{{dateTime1}}" bindchange="changeDateTime1" bindcolumnchange="changeDateTimeColumn1" range="{{dateTimeArray1}}">
+    <view class="tui-picker-detail">
+      选择日期时间: {{dateTimeArray1[0][dateTime1[0]]}}-{{dateTimeArray1[1][dateTime1[1]]}}-{{dateTimeArray1[2][dateTime1[2]]}} {{dateTimeArray1[3][dateTime1[3]]}}:{{dateTimeArray1[4][dateTime1[4]]}}
+    </view>
+  </picker>
+</view> -->
+
+<view>
+  <scroll-view scroll-y="true" style="height:90vh;" class="box-scroll">
+    <block wx:for="{{list}}" wx:key="index">
+      <view>
+        <text>时间：{{item.Time}} </text>
+        <text>温度：{{item.Temperature}} 湿度：{{item.Humidity}}</text>
+        <text>光照强度：{{item.LightIntensity}} 土壤湿度：{{item.SoilMoisture}}</text>
+      </view>
+    </block>
+</scroll-view>
+</view>
+
+<view class="section page">
+  <view class="section__title">页数</view>
+  <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
+    <view class="picker">
+      当前选择：{{array[index]}}
+    </view>
+  </picker>
+</view>
