@@ -6,7 +6,7 @@ Page({
    */
   data: {
     user: "",
-    userimg: "",
+    userimg: "/images/default_avatar.jpg",
     hiddenNameFlag: false
   },
 
@@ -23,9 +23,14 @@ Page({
       success: function success(res) {
         var info = res.data;
         console.log(info);
+        if(info.data.Avatar!=""){
+          that.setData({
+            userimg:'http://47.100.108.193:8080/'+info.data.Avatar
+          })   
+        }
         that.setData({
           user: info.data,
-          userimg: 'http://47.100.108.193:8080/' + info.data.Avatar
+          
         })
       }
     })

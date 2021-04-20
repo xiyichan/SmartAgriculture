@@ -5,9 +5,95 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+    email: "",
+    password: "",
+    name: "",
+    captcha: "",
+    rePassword: ""
   },
 
+  Email: function Email(e) {
+    this.setData({
+      email: e.detail.value
+    });
+  },
+  Password: function Password(e) {
+    this.setData({
+      password: e.detail.value
+    });
+  },
+  RePassword: function RePassword(e) {
+    this.setData({
+      rePassword: e.detail.value
+    });
+  },
+  Captcha: function Captcha(e) {
+    this.setData({
+      captcha: e.detail.value
+    });
+  },
+  Name:function Name(e){
+    this.setData({
+      name: e.detail.value
+    });
+  },
+  getCaptcha: function getCaptcha() {
+    var that = this;
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/email/captcha',
+      data: {
+        Email: that.data.email
+      },
+      method: "post",
+      header: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      success: function success(res) {
+        var info = res.data;
+        wx.showModal({
+          title: "提示",
+          content: info.msg,
+        })
+
+      }
+    })
+  },
+  register:function register(){
+    var that=this;
+    if (that.data.password!=that.data.password){
+      wx.showModal({
+        title: "提示",
+        content: "密码2次输入不一样",
+      });
+      return
+    }
+    wx.request({
+      url: 'http://47.100.108.193:8080/api/user/register/email',
+      data:{
+        Email:that.data.email,
+        Password:that.data.password,
+        Captcha:that.data.captcha,
+        Name:that.data.name
+      },
+      method: "post",
+      header: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      success:function success(res){
+        var info = res.data;
+        wx.showModal({
+          title: "提示",
+          content: info.msg,
+        })
+        if (info.code==200){
+          wx.setStorageSync('token', info.token);
+          wx.switchTab({
+            url: "/pages/device/device"
+          });
+        }
+      }
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */

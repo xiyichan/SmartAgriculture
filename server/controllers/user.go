@@ -311,7 +311,7 @@ func UserForgetPasswordByEmail(ctx *gin.Context) {
 	}
 	user.Password = string(hashNewPassword)
 
-	if err := db.Model(&user).Error; err != nil {
+	if err := db.Model(&user).Update("password", user.Password).Error; err != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "修改失败"})
 	} else {
 		rdb.HDel(ctx, "user"+strconv.Itoa(int(user.ID)), "count", "time", "token")
