@@ -78,8 +78,8 @@ Page({
         var info = res.data;
         console.log(info);
         let a = [];
-        for (var i = 1; i <= info.count/that.data.limit; i++) {
-         a.push(i);
+        for (var i = 0; i < info.count/that.data.limit; i++) {
+         a.push(i+1);
         }
         console.log(a)
         that.setData({
@@ -129,7 +129,6 @@ Page({
   },
   bindPickerChange:function(e){
     var that =this;
-   
     console.log(e.detail.value);
     this.setData({
       index:e.detail.value,

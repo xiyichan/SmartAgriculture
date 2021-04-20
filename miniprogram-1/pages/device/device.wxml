@@ -1,12 +1,14 @@
 <!--pages/device/device.wxml-->
+
 <view style="height:100vh;">
+  
   <scroll-view scroll-y="true" style="height:90vh; " class="box-scroll">
     <block wx:for="{{device}}" wx:key="index">
-      <view wx:if="{{item.Status==='online'}}" >
-        <view class="device-view-online" >
-          <view data-alpha-beta="{{item}}" bindtap="historyData" >
-            <text class="text-property" >IotId:{{item.IotId}}</text>{
-          </view> 
+      <view wx:if="{{item.Status==='online'}}">
+        <view class="device-view-online">
+          <view data-alpha-beta="{{item}}" bindtap="historyData">
+            <text class="text-property">IotId:{{item.IotId}}</text>{
+          </view>
           <view>
             <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
             <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
@@ -23,13 +25,16 @@
       </view>
       <view wx:else>
         <view class="device-view-offline">
-          <view data-alpha-beta="{{item.IotId}}" bindtap="historyData" >
-            <text class="text-property" >IotId:{{item.IotId}}</text>
+          <view data-alpha-beta="{{item.IotId}}" bindtap="historyData">
+            <text class="text-property">IotId:{{item.IotId}}</text>
           </view>
           <view>
-            <switch class="switch" disabled="false" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
-            <switch class="switch" disabled="false" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
-            <switch class="switch" disabled="false" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
+            <switch class="switch" disabled="false" checked="{{item.LightSwitch}}" bindchange="lightSwitch"
+              id="{{index}}">灯 </switch>
+            <switch class="switch" disabled="false" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">
+              风扇 </switch>
+            <switch class="switch" disabled="false" checked="{{item.WaterSwitch}}" bindchange="waterSwitch"
+              id="{{index}}">水 </switch>
           </view>
           <view>
             <text class="text-property">湿度:</text>0
@@ -43,7 +48,18 @@
 
     </block>
   </scroll-view>
+
+
   <view style="height 20vh;">
     <button type="primary" bindtap="addDevice">添加设备</button>
   </view>
+  <view class="section page">
+    <view class="section__title">页数</view>
+    <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
+      <view class="picker">
+        当前选择：{{array[index]}}
+      </view>
+    </picker>
+  </view>
 </view>
+

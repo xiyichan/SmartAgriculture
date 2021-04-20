@@ -11,6 +11,9 @@ Page({
     scanCodeMsg: "",
 
     device: "",
+    array:[],
+    index:0,
+    count:0,
     //token:"Bearer "+wx.getStorageSync('token'),
   },
 
@@ -150,13 +153,29 @@ Page({
       },
       success: function success(res) {
         var info = res.data;
-        console.log(info);
+        let a = [];
+        console.log(info.count,info.count/that.data.pageSize);
+        for (var i = 0; i < info.count/that.data.pageSize; i++) {
+          a.push(i+1);
+         }
+         console.log(a)
         that.setData({
-          device: info.data
+          device: info.data,
+          count:info.count,
+          array:a
         })
 
       }
     })
+  },
+  bindPickerChange:function(e){
+    var that =this;
+    console.log(e.detail.value);
+    this.setData({
+      index:e.detail.value,
+      pageIndex:e.detail.value+1
+    })
+    this.deviceList()
   },
   item:function(e){
     var that=this

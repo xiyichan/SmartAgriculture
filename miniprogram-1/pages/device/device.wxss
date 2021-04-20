@@ -1,4 +1,9 @@
 /* pages/device/device.wxss */
+.items{
+  top:100;
+  position: fixed;
+}
+
 .device-view-online{
   height: auto;
   margin: 5px;
@@ -21,4 +26,14 @@
   font-weight: bold;
   color: blueviolet;
   
+}
+.page{
+  font-size: 39rpx;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+
 }
