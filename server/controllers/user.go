@@ -304,7 +304,7 @@ func UserForgetPasswordByEmail(ctx *gin.Context) {
 		ctx.JSON(422, gin.H{"code": 422, "msg": "密码格式不对,6位以上"})
 		return
 	}
-	hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		ctx.JSON(500, gin.H{"code": 500, "msg": "系统密码处理错误"})
 		return
