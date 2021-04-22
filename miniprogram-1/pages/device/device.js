@@ -154,11 +154,11 @@ Page({
       success: function success(res) {
         var info = res.data;
         let a = [];
-        console.log(info.count,info.count/that.data.pageSize);
+        //console.log(info.count,info.count/that.data.pageSize);
         for (var i = 0; i < info.count/that.data.pageSize; i++) {
           a.push(i+1);
          }
-         console.log(a)
+         console.log(info.data)
         that.setData({
           device: info.data,
           count:info.count,
@@ -186,8 +186,9 @@ Page({
     var that=this
     console.log(that.data.device)
     console.log(e.currentTarget.dataset.alphaBeta)
+    //bug
     wx.navigateTo({
-      url: '/pages/deviceHistoryData/deviceHistoryData?IotId='+e.currentTarget.dataset.alphaBeta,
+      url: '/pages/deviceHistoryData/deviceHistoryData?IotId='+e.currentTarget.dataset.alphaBeta.IotId,
     })
   },
   onLoad: function (options) {

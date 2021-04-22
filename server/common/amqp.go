@@ -211,6 +211,7 @@ func deviceFilter(message string) {
 	fanSwitch := j.GetBool("items.fan_switch.value")
 	lightSwitch := j.GetBool("items.light_switch.value")
 	waterSwitch := j.GetBool("items.water_switch.value")
+	autoSwitch := j.GetBool("items.auto_switch.value")
 
 	switch productKey {
 	//pi
@@ -252,6 +253,7 @@ func deviceFilter(message string) {
 			FanSwitch:      &fanSwitch,
 			LightSwitch:    &lightSwitch,
 			WaterSwitch:    &waterSwitch,
+			AutoSwitch:     &autoSwitch,
 		}
 		fmt.Println(pi)
 		fmt.Println(deviceName)
