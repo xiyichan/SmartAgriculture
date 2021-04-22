@@ -78,7 +78,8 @@ func UserSetPiProperty(ctx *gin.Context) {
 	waterSwitch := ctx.PostForm("WaterSwitch")
 	fanSwitch := ctx.PostForm("FanSwitch")
 	lightSwitch := ctx.PostForm("lightSwitch")
-	var w, f, l int
+	autoSwitch := ctx.PostForm("lightSwitch")
+	var w, f, l, a int
 	if waterSwitch == "true" {
 		w = 1
 	}
@@ -88,9 +89,12 @@ func UserSetPiProperty(ctx *gin.Context) {
 	if lightSwitch == "true" {
 		l = 1
 	}
+	if autoSwitch == "true" {
+		a = 1
+	}
 	iotid := ctx.PostForm("IotId")
 	//fmt.Println(waterSwitch)
-	order := fmt.Sprintf("{\"water_switch\":%v,\"fan_switch\":%v,\"light_switch\":%v}", w, f, l)
+	order := fmt.Sprintf("{\"water_switch\":%v,\"fan_switch\":%v,\"light_switch\":%v,\"light_switch\":%v}", w, f, l, a)
 	//order:="{\"water_switch\":1}"
 	//fmt.Println(order)
 	request := requests.NewCommonRequest()

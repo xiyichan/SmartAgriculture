@@ -6,14 +6,16 @@
     </view>
   </picker>
 </view> -->
-
-<view class="tui-picker-content">
+<!-- 引入wxs文件 -->
+<wxs src="../../wxs/wxs.wxs" module="module1" />
+<view class="tui-picker-content" style="display:flex;margin-left:10px">
   <!-- <view class="tui-picker-name">日期选择器（选择年月日）</view> -->
   <picker mode="date" value="{{date}}" bindchange="changeDate">
-    <view class="tui-picker-detail">
-      选择日期: {{date}}
-    </view>
+    <button size="mini">
+      选择日期
+    </button>
   </picker>
+  <text style="display:block;margin-top:5px;margin-left:10px">{{date}}</text>
 </view>
 
 <!-- <view class="tui-picker-content">
@@ -36,20 +38,24 @@
 <view>
   <scroll-view scroll-y="true" style="height:90vh;" class="box-scroll">
     <block wx:for="{{list}}" wx:key="index">
-      <view>
-        <text>时间：{{item.Time}} </text>
-        <text>温度：{{item.Temperature}} 湿度：{{item.Humidity}}</text>
-        <text>光照强度：{{item.LightIntensity}} 土壤湿度：{{item.SoilMoisture}}</text>
+      <view class="text-view">
+        <view class="text-label">
+          <text style="margin-right:20px">时间：{{module1.time_format(item.Time)}} </text>
+          <text>温度：{{item.Temperature}}</text>
+        </view>
+        <view class="text-label">
+          <text style="margin-right:10px">湿度：{{item.Humidity}}</text>
+          <text style="margin-right:10px">土壤湿度：{{item.SoilMoisture}}</text>
+          <text>光照强度：{{item.LightIntensity}}</text>
+        </view>
       </view>
     </block>
-</scroll-view>
+  </scroll-view>
 </view>
 
 <view class="section page">
-  <view class="section__title">页数</view>
   <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
-    <view class="picker">
-      当前选择：{{array[index]}}
-    </view>
+  <button size="mini">选择页数</button>
   </picker>
+  <text style="display:block;margin-bottom:3px;margin-left:10px">当前页数：{{array[index]}}</text>
 </view>

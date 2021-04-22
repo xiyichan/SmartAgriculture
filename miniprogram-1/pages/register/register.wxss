@@ -1,1 +1,12 @@
 /* pages/register/register.wxss */
+.label-text{
+  display: flex;
+  margin:20px 10px;
+}
+.label-text label{
+  padding-right: 10px;
+}
+input{
+  border-bottom:1px solid #ebebeb;
+  width: 80%;
+}

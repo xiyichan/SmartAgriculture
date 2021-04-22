@@ -1,33 +1,34 @@
 /* pages/device/device.wxss */
-.items{
-  top:100;
+.items {
+  top: 100;
   position: fixed;
 }
 
-.device-view-online{
+.device-view-online {
   height: auto;
   margin: 5px;
-  border-color: brown;
-  border-style:solid ;
+  border: 1px solid #ebebeb
 }
-.device-view-offline{
+
+.device-view-offline {
   height: auto;
   margin: 5px;
-  border-color: brown;
-  background-color: gray;
-  border-style:solid ;
+  background-color: #ebebeb96;
+  border: 1px solid #ebebeb;
 }
-.text-property{
-  font-weight: bold;
+
+.text-property {
   color: cadetblue;
   width: 50px;
+  margin: 10px 0;
 }
-.switch{
-  font-weight: bold;
-  color: blueviolet;
-  
+
+.switch {
+  color: rgb(5, 2, 7);
+
 }
-.page{
+
+.page {
   font-size: 39rpx;
   background: #fff;
   position: fixed;
@@ -36,4 +37,9 @@
   width: 100%;
   justify-content: center;
 
+}
+
+.text-prop {
+  display: block;
+  padding: 20rpx;
 }

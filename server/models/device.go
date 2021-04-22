@@ -43,6 +43,7 @@ type PiData struct {
 	FanSwitch      bool
 	WaterSwitch    bool
 	LightSwitch    bool
+	AutoSwitch     bool
 	Temperature    float32
 	Humidity       float32
 	SoilMoisture   int

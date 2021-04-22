@@ -8,3 +8,10 @@
   justify-content: center;
 
 }
+.text-view{
+  border:1px solid #ebebeb;
+  margin:10px;
+}
+.text-label{
+padding: 5px;
+}

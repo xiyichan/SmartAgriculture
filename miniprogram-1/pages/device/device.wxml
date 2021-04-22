@@ -7,12 +7,13 @@
       <view wx:if="{{item.Status==='online'}}">
         <view class="device-view-online">
           <view data-alpha-beta="{{item}}" bindtap="historyData">
-            <text class="text-property">IotId:{{item.IotId}}</text>{
+            <text class="text-prop" style="display:block;padding:10px">IotId:{{item.IotId}}</text>
           </view>
           <view>
             <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
             <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
             <switch class="switch" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
+            <switch class="switch" checked="{{item.AutoSwitch}}" bindchange="auotSwitch" id="{{index}}">自动 </switch>
           </view>
           <view>
             <text class="text-property">湿度:</text>{{item.Humidity}}
@@ -35,6 +36,7 @@
               风扇 </switch>
             <switch class="switch" disabled="false" checked="{{item.WaterSwitch}}" bindchange="waterSwitch"
               id="{{index}}">水 </switch>
+              <switch class="switch" disable="false" checked="{{item.AutoSwitch}}" bindchange="auotSwitch" id="{{index}}">自动 </switch>
           </view>
           <view>
             <text class="text-property">湿度:</text>0
@@ -48,18 +50,12 @@
 
     </block>
   </scroll-view>
-
-
-  <view style="height 20vh;">
-    <button type="primary" bindtap="addDevice">添加设备</button>
-  </view>
-  <view class="section page">
-    <view class="section__title">页数</view>
+  <view style="display:flex;">
+    <button type="primary" size="mini" bindtap="addDevice">添加设备</button>
     <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
-      <view class="picker">
-        当前选择：{{array[index]}}
-      </view>
-    </picker>
+    <button size="mini" style="margin-right:20px">选择页数</button>
+  </picker>
+  <text style="display:block;margin-right:20px;margin-top:5px;">当前页数：{{array[index]}}</text>
   </view>
 </view>
 

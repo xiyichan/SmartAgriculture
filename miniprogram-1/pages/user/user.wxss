@@ -1,0 +1,4 @@
+.head_img{
+  border-bottom:1px solid #ebebeb;
+  margin:10px;
+}
