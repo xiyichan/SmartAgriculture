@@ -58,9 +58,10 @@ Page({
   },
 
   getList:function(){
-   // console.log(date)
+   console.log(this.data.IotId)
     var that=this;
     var token = "Bearer " + wx.getStorageSync('token');
+    console.log(that.data.page);
     wx.request({
       url: 'http://47.100.108.193:8080/api/device/pi/get/history?IotId='+that.data.iotId+'&&Day='+that.data.date+'&&Page='+that.data.page+'&&Limit='+that.data.limit,
       // data: {
@@ -92,7 +93,12 @@ Page({
     })
   },
   changeDate(e){
-    this.setData({ date:e.detail.value});
+    this.setData({ 
+      date:e.detail.value,
+      index:0,
+      array:[],
+      page:1,
+    });
     console.log(this.data.date)
     this.getList(this.data.date)
   },
@@ -132,8 +138,9 @@ Page({
     console.log(e.detail.value);
     this.setData({
       index:e.detail.value,
-      page:e.detail.value+1
+      page:parseInt(e.detail.value)+1
     })
+    console.log("11111111111",this.data.page)
     this.getList()
   },
 
