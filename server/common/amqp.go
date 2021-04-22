@@ -255,6 +255,9 @@ func deviceFilter(message string) {
 			WaterSwitch:    &waterSwitch,
 			AutoSwitch:     &autoSwitch,
 		}
+		if humidity != 0 || soil != 0 {
+			pi.Status = "online"
+		}
 		fmt.Println(pi)
 		fmt.Println(deviceName)
 		e := db.Model(&models.Pi{}).Where("device_name=?", deviceName).Updates(&pi).Error
