@@ -6,8 +6,8 @@
     <block wx:for="{{device}}" wx:key="index">
       <view wx:if="{{item.Status==='online'}}">
         <view class="device-view-online">
-          <view data-alpha-beta="{{item}}" bindtap="historyData">
-            <text class="text-prop" style="display:block;padding:10px">IotId:{{item.IotId}}</text>
+          <view>
+            <text class="text-prop" style="display:block;padding:10px"  data-alpha-beta="{{item}}" bindtap="historyData">IotId:{{item.IotId}}</text>
           </view>
           <view>
             <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>

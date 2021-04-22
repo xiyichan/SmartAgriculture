@@ -196,7 +196,7 @@ func (am *AmqpManager) generateReceiver() error {
 func deviceFilter(message string) {
 	db := GetDB()
 	mgocli, _ := GetMongoClient()
-	//fmt.Println(message)
+	fmt.Println(message)
 	j := gjson.New(message)
 	productKey := j.GetString("productKey")
 	iotId := j.GetString("iotId")
