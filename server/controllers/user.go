@@ -299,7 +299,10 @@ func UserForgetPasswordByEmail(ctx *gin.Context) {
 	password := ctx.PostForm("Password")
 
 	db.Where("email=?", email).First(&user)
-
+	if user.ID==0{
+		ctx.JSON(422, gin.H{"code": 422, "msg": "没有该账号"})
+		return
+	}
 	if err := gvalid.Check(password, "password", nil); err != nil {
 		ctx.JSON(422, gin.H{"code": 422, "msg": "密码格式不对,6位以上"})
 		return
