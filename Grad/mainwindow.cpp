@@ -69,13 +69,13 @@ MainWindow::MainWindow(QWidget *parent)
         parse(message);
     });
     //类似心跳包？一分钟一次
-    connect(m_client, &QMqttClient::pingResponseReceived, this, [this]() {
-        const QString content = QDateTime::currentDateTime().toString()
-                + QLatin1String(" PingResponse")
-                + QLatin1Char('\n');
-        qDebug()<<content;
-    });
-    // payload2="{\"id\":1,\"params\": {\"CH1\":10},\"method\": \"thing.event.property.post\"}";
+        connect(m_client, &QMqttClient::pingResponseReceived, this, [this]() {
+            const QString content = QDateTime::currentDateTime().toString()
+                    + QLatin1String(" PingResponse")
+                    + QLatin1Char('\n');
+            qDebug()<<content;
+        });
+        // payload2="{\"id\":1,\"params\": {\"CH1\":10},\"method\": \"thing.event.property.post\"}";
 
     //订阅
     qDebug()<<m_strSubTopic;
@@ -111,6 +111,7 @@ MainWindow::~MainWindow()
 bool MainWindow::readDht11Data(){
     unsigned char crc;
     unsigned char i;
+    data_dht11=0;
     pinMode(dht11,OUTPUT);
     digitalWrite(dht11,0);
     delay(25);
@@ -176,9 +177,11 @@ void MainWindow::timerEvent(QTimerEvent *event){
     }
     data_dht11=0;
     //ads1115
-    for(int i=100;i<104;i++){
+    for(int i=100;i<102;i++){
         ads1115_value[i-100]=(int16_t)analogRead(i);
+        qDebug()<<"asd1115::"<<i-100<<ads1115_value[i-100];
         ads1115_voltage[i-100]=ads1115_value[i-100]*(4.096/32768);
+        qDebug()<<"asd1115::"<<i-100<<ads1115_voltage[i-100];
     }
     ui->label_soil->setText(QString::number(ads1115_value[0],10));
     ui->label_lightIntensity->setText(QString::number(ads1115_value[1],10));
