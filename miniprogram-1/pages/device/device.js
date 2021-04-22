@@ -101,7 +101,7 @@ Page({
     console.log(that.data.device[id]);
     console.log(e);
   },
-  autoSwitch(e) {
+  auotSwitch(e) {
     var id = e.currentTarget.id;
     var that = this;
     this.data.device[id].FanSwitch = e.detail.value;

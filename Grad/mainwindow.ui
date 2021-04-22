@@ -121,8 +121,8 @@
    <widget class="QPushButton" name="pushButton_water">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>250</y>
+      <x>250</x>
+      <y>190</y>
       <width>91</width>
       <height>30</height>
      </rect>
@@ -134,8 +134,8 @@
    <widget class="QPushButton" name="pushButton_light">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>120</y>
+      <x>250</x>
+      <y>60</y>
       <width>91</width>
       <height>30</height>
      </rect>
@@ -147,8 +147,8 @@
    <widget class="QPushButton" name="pushButton_fan">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>180</y>
+      <x>250</x>
+      <y>120</y>
       <width>91</width>
       <height>30</height>
      </rect>
@@ -168,6 +168,113 @@
     </property>
     <property name="text">
      <string>login out</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_auto_save">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>50</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>save</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>50</y>
+      <width>68</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>light</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>110</y>
+      <width>41</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>water</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>160</y>
+      <width>68</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>fan</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_light">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>50</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>30000</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_water">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>100</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>30000</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_fan">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>150</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>20</number>
+    </property>
+    <property name="maximum">
+     <number>30</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>110</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>auto</string>
     </property>
    </widget>
   </widget>

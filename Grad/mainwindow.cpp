@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushButton_water->setStyleSheet("background:rgb(0,255,0)");
     ui->pushButton_fan->setStyleSheet("background:rgb(0,255,0)");
     ui->pushButton_light->setStyleSheet("background:rgb(0,255,0)");
+    ui->pushButton_2->setStyleSheet("background:rgb(0,255,0)");
+    ui->spinBox_fan->setValue(auto_fan);
+    ui->spinBox_water->setValue(auto_water);
+    ui->spinBox_light->setValue(auto_light);
 //    if(wiringPiSetup()==-1){
 //        qDebug()<<"setup wiringpi failed";
 //    }
@@ -91,7 +95,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     qDebug()<<QString::number(m_client->state());
-
+ui->pushButton_light->setStyleSheet("background:rgb(0,255,0)");
 
     setWaterSwitch(0);
     setFanSwitch(0);
@@ -178,10 +182,26 @@ void MainWindow::timerEvent(QTimerEvent *event){
     }
     ui->label_soil->setText(QString::number(ads1115_value[0],10));
     ui->label_lightIntensity->setText(QString::number(ads1115_value[1],10));
-
+    if (auto_switch==true){
+    if(temperature.toFloat()>auto_fan){
+        setFanSwitch(1);
+    }else{
+        setFanSwitch(0);
+    }
+    if(ads1115_value[1]>auto_light){
+          setLightSwitch(1);
+    }else{
+        setLightSwitch(0);
+    }
+    if(ads1115_value[0]>auto_water){
+       setWaterSwitch(1);
+    }else{
+        setWaterSwitch(0);
+    }
+}
     QString payload=QString("{\"id\":1,\"params\": {\"temperature\":%1,\"humidity\":%2,\"light_intensity\":%3,\"soil\":%4,\"water_switch\""
-                            ":%5,\"light_switch\":%6,\"fan_switch\":%7},\"method\": \"thing.event.property.post\"}").arg(temperature).arg(humidity)
-            .arg(ads1115_value[1]).arg(ads1115_value[0]).arg(water_switch).arg(light_switch).arg(fan_switch);
+                            ":%5,\"light_switch\":%6,\"fan_switch\":%7,\"auto_switch\":%8},\"method\": \"thing.event.property.post\"}").arg(temperature).arg(humidity)
+            .arg(ads1115_value[1]).arg(ads1115_value[0]).arg(water_switch).arg(light_switch).arg(fan_switch).arg(auto_switch);
     m_client->publish(m_strPubTopic,payload.toUtf8());
 }
 
@@ -248,6 +268,14 @@ void MainWindow::parse(QString message){
                             //light_switch=l.toDouble();
                             // qDebug()<<l.toDouble();
                             setLightSwitch(l.toDouble());
+                        }
+                    }
+                    if(obj.contains("auto_switch")){
+                        QJsonValue l=obj.value("auto_switch");
+                        if(l.isDouble()){
+                            //light_switch=l.toDouble();
+                            // qDebug()<<l.toDouble();
+                            setAutoSwitch(l.toDouble());
                         }
                     }
                 }
@@ -403,4 +431,41 @@ void MainWindow::finishedSlot(QNetworkReply *reply)
         qDebug(qPrintable(reply->errorString()));
     }
     reply->deleteLater();
+}
+
+void MainWindow::setAutoSwitch(bool s){
+    if(s==true){
+        pinMode(fan,OUTPUT);
+        digitalWrite(fan,1);
+        ui->pushButton_2->setText("atuo_open");
+        ui->pushButton_2->setStyleSheet("background:rgb(255,0,0)");
+        auto_switch=true;
+    }
+    else{
+        pinMode(fan,OUTPUT);
+        ui->pushButton_2->setText("atuo_close");
+        ui->pushButton_2->setStyleSheet("background:rgb(0,255,0)");
+        digitalWrite(fan,0);
+        auto_switch=false;
+        setWaterSwitch(0);
+        setLightSwitch(0);
+        setFanSwitch(0);
+    }
+}
+
+void MainWindow::on_pushButton_auto_save_clicked()
+{
+    auto_water=ui->spinBox_water->value();
+    auto_fan=ui->spinBox_fan->value();
+    auto_light=ui->spinBox_light->value();
+    qDebug()<<auto_water<<auto_fan<<auto_light;
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    if(auto_switch==false){
+        setAutoSwitch(1);
+    }else{
+        setAutoSwitch(0);
+    }
 }

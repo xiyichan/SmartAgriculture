@@ -35,7 +35,7 @@ void init(){
                 QJsonValue value=object.value("DeviceName");
                 if(value.isString()){
                     m_strDeviceName=value.toString();
-                  //  qDebug()<<m_strDeviceName;
+                    qDebug()<<"1231231231"<<m_strDeviceName;
                 }
             }
             if(object.contains("ProductKey")){

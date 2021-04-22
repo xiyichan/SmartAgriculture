@@ -43,6 +43,12 @@ private slots:
     void finishedSlot(QNetworkReply *reply);
     void on_pushButton_loginout_clicked();
 
+
+
+    void on_pushButton_auto_save_clicked();
+
+    void on_pushButton_2_clicked();
+
 private:
     Ui::MainWindow *ui;
     int dht11=7;
@@ -61,7 +67,10 @@ private:
     bool water_switch=false;
     bool fan_switch=false;
     bool light_switch=false;
-
+    bool auto_switch=false;
+    int auto_water=20000;
+    int auto_light=20000;
+    int auto_fan=20;
     QMqttClient *m_client;
 //        QString m_strProductKey;
 //        QString m_strDeviceName;
@@ -81,7 +90,7 @@ private:
     void setFanSwitch(bool s);
     void setWaterSwitch(bool s);
     void setLightSwitch(bool s);
-
+    void setAutoSwitch(bool s);
     QNetworkAccessManager *m_accessManager;
 
 };
