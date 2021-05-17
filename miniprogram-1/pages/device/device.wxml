@@ -6,14 +6,13 @@
     <block wx:for="{{device}}" wx:key="index">
       <view wx:if="{{item.Status==='online'}}">
         <view class="device-view-online">
-          <view>
-            <text class="text-prop" style="display:block;padding:10px"  data-alpha-beta="{{item}}" bindtap="historyData">IotId:{{item.IotId}}</text>
+          <view data-alpha-beta="{{item}}" bindtap="historyData">
+            <text class="text-prop" style="display:block;padding:10px">IotId:{{item.IotId}}</text>{
           </view>
           <view>
             <switch class="switch" checked="{{item.LightSwitch}}" bindchange="lightSwitch" id="{{index}}">灯 </switch>
             <switch class="switch" checked="{{item.FanSwitch}}" bindchange="fanSwitch" id="{{index}}">风扇 </switch>
             <switch class="switch" checked="{{item.WaterSwitch}}" bindchange="waterSwitch" id="{{index}}">水 </switch>
-            <switch class="switch" checked="{{item.AutoSwitch}}" bindchange="auotSwitch" id="{{index}}">自动 </switch>
           </view>
           <view>
             <text class="text-property">湿度:</text>{{item.Humidity}}
@@ -36,7 +35,6 @@
               风扇 </switch>
             <switch class="switch" disabled="false" checked="{{item.WaterSwitch}}" bindchange="waterSwitch"
               id="{{index}}">水 </switch>
-              <switch class="switch" disable="false" checked="{{item.AutoSwitch}}" bindchange="auotSwitch" id="{{index}}">自动 </switch>
           </view>
           <view>
             <text class="text-property">湿度:</text>0

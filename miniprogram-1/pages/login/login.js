@@ -5,8 +5,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    account: "",
-    password: "",
+    account: "2863768433@qq.com",
+    password: "123456",
   },
   Account: function Account(e) {
     this.setData({

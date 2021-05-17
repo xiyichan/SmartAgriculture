@@ -29,7 +29,6 @@ Page({
         WaterSwitch: this.data.device[id].WaterSwitch,
         FanSwitch: this.data.device[id].FanSwitch,
         lightSwitch: this.data.device[id].LightSwitch,
-        autoSwitch:this.data.device[id].AutoSwitch,
       },
       method: "post",
       header: {
@@ -57,7 +56,6 @@ Page({
         WaterSwitch: this.data.device[id].WaterSwitch,
         FanSwitch: this.data.device[id].FanSwitch,
         lightSwitch: this.data.device[id].LightSwitch,
-        autoSwitch:this.data.device[id].AutoSwitch,
       },
       method: "post",
       header: {
@@ -85,35 +83,6 @@ Page({
         WaterSwitch: this.data.device[id].WaterSwitch,
         FanSwitch: this.data.device[id].FanSwitch,
         lightSwitch: this.data.device[id].LightSwitch,
-        autoSwitch:this.data.device[id].AutoSwitch,
-      },
-      method: "post",
-      header: {
-        "content-type": "application/x-www-form-urlencoded",
-        "Authorization": token
-      },
-      success: function success(res) {
-        var info = res.data;
-        console.log(info);
-
-      }
-    })
-    console.log(that.data.device[id]);
-    console.log(e);
-  },
-  auotSwitch(e) {
-    var id = e.currentTarget.id;
-    var that = this;
-    this.data.device[id].FanSwitch = e.detail.value;
-    var token = "Bearer " + wx.getStorageSync('token');
-    wx.request({
-      url: 'http://47.100.108.193:8080/api/device/pi/set/property',
-      data: {
-        IotId: this.data.device[id].IotId,
-        WaterSwitch: this.data.device[id].WaterSwitch,
-        FanSwitch: this.data.device[id].FanSwitch,
-        lightSwitch: this.data.device[id].LightSwitch,
-        autoSwitch:this.data.device[id].AutoSwitch,
       },
       method: "post",
       header: {
@@ -184,9 +153,8 @@ Page({
       },
       success: function success(res) {
         var info = res.data;
-        console.log(info);
         let a = [];
-       // console.log(info.count,info.count/that.data.pageSize);
+        console.log(info.count,info.count/that.data.pageSize);
         for (var i = 0; i < info.count/that.data.pageSize; i++) {
           a.push(i+1);
          }
