@@ -5,8 +5,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    account: "",
-    password: "",
+    account: "2863768433@qq.com",
+    password: "czx987852",
   },
   Account: function Account(e) {
     this.setData({
@@ -37,9 +37,9 @@ Page({
         if (info.code == 200) {
           wx.setStorageSync('token', info.token);
           wx.setStorageSync('userID', info.data.ID)
-          // wx.setStorageSync('avater', info.data.Avatar)
-          // wx.setStorageSync('name', info.data.Name)
-          // wx.setStorageSync('email', info.data.Email)
+          wx.setStorageSync('avater', info.data.Avatar)
+          wx.setStorageSync('name', info.data.Name)
+          wx.setStorageSync('email', info.data.Email)
           wx.switchTab({
             url: "/pages/device/device"
           });
@@ -50,17 +50,6 @@ Page({
           });
         }
       }
-    })
-  },
-
-  register:function(){
-    wx.navigateTo({
-      url: '/pages/register/register',
-    })
-  },
-  forgetPassword:function(){
-    wx.navigateTo({
-      url: '/pages/forgetPassword/forgetPassword',
     })
   },
   /**

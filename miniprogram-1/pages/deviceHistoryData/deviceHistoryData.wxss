@@ -1,17 +1,1 @@
-.page{
-  font-size: 39rpx;
-  background: #fff;
-  position: fixed;
-  bottom: 0;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-
-}
-.text-view{
-  border:1px solid #ebebeb;
-  margin:10px;
-}
-.text-label{
-padding: 5px;
-}
+/* pages/deviceHistoryData/deviceHistoryData.wxss */

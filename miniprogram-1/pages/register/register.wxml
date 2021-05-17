@@ -1,23 +1,2 @@
 <!--pages/register/register.wxml-->
-<view>
-  <view class="label-text">
-    <label>邮箱</label>
-    <input name="input" placeholder="请输入邮箱" bindinput="Email"></input>
-  </view>
-  <view style="display:flex">
-    <input name="input" placeholder="请输入验证码" bindinput="Captcha" style="margin-left:10px;margin-top:5px;width:60%;"></input>
-    <button bindtap="getCaptcha" size="mini" type="primary" style="margin-right:10px">获取验证码</button>
-  </view>
-  <view class="label-text">
-    <label>姓名</label>
-    <input name="input" placeholder="请输入姓名" bindinput="Name"></input>
-  </view>
-  <view class="label-text">
-    <label>密码</label>
-    <input name="input" placeholder="请输入密码" bindinput="Password" password="true"></input>
-  </view>
-  <view style="margin-left:10px;">
-    <input name="input" placeholder="请重复输入密码" bindinput="RePassword" style="width:90%;" password="true"></input>
-  </view>
-  <button bindtap="register" style="margin-top:20px">注册</button>
-</view>
+<text>pages/register/register.wxml</text>
