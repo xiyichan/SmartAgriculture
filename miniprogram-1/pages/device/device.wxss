@@ -1,45 +1,24 @@
 /* pages/device/device.wxss */
-.items {
-  top: 100;
-  position: fixed;
-}
-
-.device-view-online {
+.device-view-online{
   height: auto;
   margin: 5px;
-  border: 1px solid #ebebeb
+  border-color: brown;
+  border-style:solid ;
 }
-
-.device-view-offline {
+.device-view-offline{
   height: auto;
   margin: 5px;
-  background-color: #ebebeb96;
-  border: 1px solid #ebebeb;
+  border-color: brown;
+  background-color: gray;
+  border-style:solid ;
 }
-
-.text-property {
+.text-property{
+  font-weight: bold;
   color: cadetblue;
   width: 50px;
-  margin: 10px 0;
 }
-
-.switch {
-  color: rgb(5, 2, 7);
-
-}
-
-.page {
-  font-size: 39rpx;
-  background: #fff;
-  position: fixed;
-  bottom: 0;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-
-}
-
-.text-prop {
-  display: block;
-  padding: 20rpx;
+.switch{
+  font-weight: bold;
+  color: blueviolet;
+  
 }

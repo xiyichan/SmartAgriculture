@@ -1,17 +1,1 @@
 /* pages/login/login.wxss */
-.contain{
-  width: 100%;
-  padding:0;
-  margin:30rpx;
-}
-.inut-label{
-  display: flex;
-  margin:50rpx 0;
-}
-label{
-  padding-right: 20rpx;
-}
-input{
-  border-bottom: 1rpx solid #ebebeb;
-  width: 80%;
-}

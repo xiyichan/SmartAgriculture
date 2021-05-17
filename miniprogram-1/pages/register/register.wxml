@@ -1,4 +1,5 @@
 <!--pages/register/register.wxml-->
+<<<<<<< HEAD
 <view>
 <label>邮箱</label>
 <input name="input" placeholder="请输入邮箱" bindinput="Email"></input>
@@ -13,3 +14,6 @@
 <input name="input" placeholder="请重复输入密码" bindinput="RePassword" password="true"></input>
 <button bindtap="register">注册</button>
 </view>
+=======
+<text>pages/register/register.wxml</text>
+>>>>>>> a31a5beb383efac0956eb22ec0e74afdd1514255

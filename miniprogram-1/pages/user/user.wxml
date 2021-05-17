@@ -1,4 +1,5 @@
 <!--pages/user/user.wxml-->
+<<<<<<< HEAD
 <view class='head_img' bindtap='upShopLogo'>
 <text>头像</text>
 <view class='img'><image src="{{userimg}}"></image></view>
@@ -18,3 +19,6 @@
 <view>
   <button bindtap="updatePassword" bindtap="showPasswordWindows">更新密码</button>
 </view>
+=======
+<text>pages/user/user.wxml</text>
+>>>>>>> a31a5beb383efac0956eb22ec0e74afdd1514255
